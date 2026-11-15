@@ -1,0 +1,263 @@
+:root {
+    --vd-green: #415A41;
+    --vd-blue: #6EB2F6;
+    --vd-blue-dark: #2f5fb3;
+    --vd-yellow: #FFFA5B;
+    --vd-ink: #111;
+    --vd-grey: #d9d9d9;
+    --text-muted: #999999;
+    --font-ui: 'Josefin Sans', 'IBM Plex Sans Thai', sans-serif;
+}
+
+.rent {
+    background: #fff;
+    color: var(--vd-ink);
+    font-family: var(--font-ui);
+    padding: 4rem 1.5rem 3rem;
+    min-height: 70vh;
+}
+
+.rent-title {
+    margin: 0 0 2.2rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.8rem);
+    letter-spacing: 0.02em;
+}
+
+/* ---------- Stepper ---------- */
+.stepper {
+    list-style: none;
+    margin: 0 auto 4rem;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    max-width: 560px;
+}
+.step {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+}
+/* connector line to the next step */
+.step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--vd-grey);
+    z-index: 0;
+}
+.dot {
+    position: relative;
+    z-index: 1;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--vd-grey);
+}
+.step.is-current .dot { background: var(--vd-blue); }
+.step-label {
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+}
+
+/* ---------- Form ---------- */
+.rent-form {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.rent-column {
+    max-width: 430px;
+    margin: 0 auto;
+}
+.block { margin-bottom: 3.2rem; }
+.block-title {
+    margin: 0 0 1.6rem;
+    padding-left: 1rem;
+    border-left: 5px solid var(--vd-ink);
+    font-weight: 500;
+    font-size: 1.7rem;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+}
+.block-title label { cursor: pointer; }
+
+/* dropdown */
+.select-wrap { position: relative; }
+.select-wrap::after {
+    content: "";
+    position: absolute;
+    right: 1.1rem;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--vd-ink);
+    border-bottom: 2px solid var(--vd-ink);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+}
+.select-wrap select {
+    width: 100%;
+    height: 64px;
+    padding: 0 2.6rem 0 1.2rem;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--vd-ink);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text-muted);
+    font-family: var(--font-ui);   /* Josefin Sans ก่อน แล้วค่อย fallback เป็น IBM Plex Sans Thai */
+    font-size: 1.1rem;
+    letter-spacing: 0.03em;
+    text-align: center;
+    text-align-last: center;
+    cursor: pointer;
+}
+
+.select-wrap select option {
+    font-family: inherit;
+}
+
+/* ---------- Calendar ---------- */
+.calendar {
+    border: 1px solid var(--vd-ink);
+    border-radius: 6px;
+    padding: 1rem 1.1rem 1.2rem;
+    background: #fff;
+}
+.cal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+}
+.cal-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.03em;
+}
+.cal-nav {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--vd-ink);
+    border-radius: 6px;
+    background: #fff;
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    cursor: pointer;
+}
+.cal-nav:disabled { opacity: 0.25; cursor: not-allowed; }
+.cal-nav:not(:disabled):hover { background: var(--vd-ink); color: #fff; }
+
+.cal-weekdays,
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+.cal-weekdays {
+    margin-bottom: 4px;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    opacity: 0.65;
+}
+.cal-day {
+    aspect-ratio: 1;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--vd-ink);
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    cursor: pointer;
+}
+.cal-day:not(:disabled):not(.is-selected):hover {
+    background: #eef4fd;
+    border-color: var(--vd-blue);
+}
+.cal-day.is-today { border-color: var(--vd-ink); }
+.cal-day.is-selected,
+.cal-day.is-selected:hover {
+    background: var(--vd-blue);
+    border-color: var(--vd-blue-dark);
+    font-weight: 700;
+}
+.cal-day:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.cal-nav:focus-visible,
+.cal-day:focus-visible,
+.select-wrap select:focus-visible,
+.btn-next:focus-visible,
+.link-clear:focus-visible {
+    outline: 3px solid var(--vd-blue-dark);
+    outline-offset: 2px;
+}
+
+.cal-summary {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    font-family: 'IBM Plex Sans Thai', var(--font-ui);
+    font-size: 0.9rem;
+}
+.cal-summary p { margin: 0; }
+.link-clear {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* ---------- Next button ---------- */
+.rent-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+.btn-next {
+    min-width: 130px;
+    height: 62px;
+    padding: 0 1.5rem;
+    border: 1px solid var(--vd-ink);
+    border-radius: 6px;
+    background: var(--vd-yellow);
+    color: var(--vd-ink);
+    font-family: var(--font-ui);
+    font-size: 1.4rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+.btn-next:not(:disabled):hover { background: #fff04d; }
+.btn-next:disabled {
+    background: #f1f1f1;
+    color: #8a8a8a;
+    border-color: #bbb;
+    cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+    .rent { padding-top: 2.5rem; }
+    .dot { width: 36px; height: 36px; }
+    .step:not(:last-child)::after { top: 18px; }
+    .step-label { font-size: 0.68rem; }
+    .block-title { font-size: 1.4rem; }
+    .rent-actions { justify-content: stretch; }
+    .btn-next { width: 100%; }
+}
