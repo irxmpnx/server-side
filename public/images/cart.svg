@@ -1,0 +1,30 @@
+<svg width="382" height="338" viewBox="0 0 382 338" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<circle cx="103.944" cy="318.396" r="19.1495" fill="#2E2E2E" stroke-width="0.814873" stroke="black"/>
+<circle cx="103.943" cy="318.396" r="10.1859" fill="#505050" stroke-width="0.814873" stroke="black"/>
+<circle cx="314.995" cy="318.396" r="19.1495" fill="#2E2E2E" stroke-width="0.814873" stroke="black"/>
+<circle cx="314.996" cy="318.396" r="10.1859" fill="#505050" stroke-width="0.814873" stroke="black"/>
+<circle cx="361.443" cy="254.835" r="19.1495" fill="#2E2E2E" stroke-width="0.814873" stroke="black"/>
+<circle cx="361.443" cy="254.836" r="10.1859" fill="#505050" stroke-width="0.814873" stroke="black"/>
+<path d="M63.1992 122.418L104.758 57.2285V220.611L63.1992 287.838V122.418Z" fill="#816C51"/>
+<mask id="stroke0_126_249" fill="white">
+<path d="M63.1992 122.418L104.758 57.2285V220.611L63.1992 287.838V122.418Z"/>
+</mask>
+<path d="M63.1992 122.418L104.758 57.2285V220.611L63.1992 287.838V122.418Z" stroke-width="1.62975" stroke="black" mask="url(#stroke0_126_249)"/>
+<path d="M46.4944 123.234H62.7918V303.32H46.4944V123.234Z" fill="#645239" stroke-width="0.814873" stroke="black"/>
+<path d="M104.758 57.6367L63.1992 122.827H46.0869L90.9049 57.6367H104.758Z" fill="#645239" stroke-width="0.814873" stroke="black"/>
+<rect x="63.6067" y="287.838" width="276.242" height="15.4826" fill="#816C51" stroke-width="0.814873" stroke="black"/>
+<path d="M104.828 220.611H381L339.371 288.246L63.1992 287.838L104.828 220.611Z" fill="#9D8362"/>
+<mask id="stroke1_126_249" fill="white">
+<path d="M104.828 220.611H381L339.371 288.246L63.1992 287.838L104.828 220.611Z"/>
+</mask>
+<path d="M104.828 220.611H381L339.371 288.246L63.1992 287.838L104.828 220.611Z" stroke-width="1.62975" stroke="black" mask="url(#stroke1_126_249)"/>
+<path d="M339.849 287.431L381 220.611V237.316L340.256 303.728L339.849 287.431Z" fill="#645239" stroke-width="0.814873" stroke="black"/>
+<use xlink:href="#stroke2_126_249" fill="#414141"/>
+<mask id="stroke3_126_249" fill="white">
+<use xlink:href="#stroke2_126_249"/>
+</mask>
+<path d="M36.5234 1.125L93.5391 36.4492H94.165V66.5996H87.6455V40.4668L36.7285 8.9209L9.06445 50.5615L62.5732 83.7119H63.1992V113.862H56.6807V87.7295L5.45605 55.9932L5.42969 56.0342L4.15039 55.1846L1.26953 53.3994L1.32617 53.3076L0 52.4268L34.8291 0L36.5234 1.125Z" stroke-width="1.62975" stroke="black" mask="url(#stroke3_126_249)"/>
+<defs>
+<path id="stroke2_126_249" d="M36.5234 1.125L93.5391 36.4492H94.165V66.5996H87.6455V40.4668L36.7285 8.9209L9.06445 50.5615L62.5732 83.7119H63.1992V113.862H56.6807V87.7295L5.45605 55.9932L5.42969 56.0342L4.15039 55.1846L1.26953 53.3994L1.32617 53.3076L0 52.4268L34.8291 0L36.5234 1.125Z"/>
+</defs>
+</svg>
