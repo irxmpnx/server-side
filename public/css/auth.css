@@ -1,0 +1,203 @@
+:root {
+    --nav-green: #42593E;
+    --accent-yellow: #F9F54B;
+    --accent-yellow-hover: #efe92a;
+    --link-blue: #4DA6FF;
+    --text-dark: #111111;
+    --text-muted: #999999;
+    --border-dark: #222222;
+    --req-red: #E53935;
+    --brand-blue: #6EB2F6;
+}
+/* =========================================
+   AUTH CONTAINERS (Sign In & Sign Up)
+   ========================================= */
+.auth-container {
+    width: 100%;
+    margin: 64px auto 88px;
+    padding: 0 24px;
+    justify-content: center;
+    align-items: center;
+}
+
+.signin-container {
+    max-width: 540px;
+}
+
+.signup-container {
+    max-width: 520px;
+}
+
+.page-title {
+    color: var(--dark, #000);
+    text-align: center;
+    font-family: "Josefin Sans";
+    font-size: clamp(3rem, 2vw, 4rem);
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-bottom: 36px;
+}
+
+.brand-accent {
+    color: var(--brand-blue);
+    font-family: "Momo Trust Display";
+    font-weight: 400;
+}
+
+.section-heading {
+    font-family: 'Fredoka', 'Josefin Sans', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.req {
+    color: var(--req-red);
+    margin-left: 2px;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="tel"],
+.auth-form input[type="password"] {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid var(--border-dark);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--text-dark);
+    background-color: #FFFFFF;
+    outline: none;
+    transition: border-width 0.1s ease;
+}
+
+.auth-form input::placeholder {
+    color: var(--text-muted);
+}
+
+.auth-form input:focus {
+    border-width: 2px;
+}
+
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 8px;
+}
+
+.radio-label {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 400 !important;
+    margin-bottom: 0 !important;
+}
+
+.radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--nav-green);
+    cursor: pointer;
+}
+
+.form-divider {
+    border: none;
+    border-top: 1px solid #BDBDBD;
+    margin: 28px -16px;
+}
+
+.btn-primary-yellow {
+    width: 100%;
+    height: 48px;
+    margin-top: 10px;
+    background-color: var(--accent-yellow);
+    border: 1px solid var(--border-dark);
+    border-radius: 6px;
+    font-family: 'Fredoka', 'Josefin Sans', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary-yellow:hover {
+    background-color: var(--accent-yellow-hover);
+}
+
+.btn-primary-yellow:active {
+    transform: translateY(1px);
+}
+
+.link-blue {
+    color: var(--link-blue);
+    text-decoration: underline;
+    font-size: 0.98rem;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 26px;
+    font-size: 1.05rem;
+}
+
+.alert-error {
+    background-color: #FFEBEE;
+    color: #C62828;
+    border: 1px solid #EF9A9A;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 22px;
+    text-align: center;
+}
+
+/* =========================================
+   AUTH RESPONSIVE BREAKPOINTS
+   ========================================= */
+@media (max-width: 540px) {
+    .auth-container {
+        margin: 36px auto 56px;
+        padding: 0 18px;
+    }
+
+    .page-title {
+        margin-bottom: 30px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .form-divider {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

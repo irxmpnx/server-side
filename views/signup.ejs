@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create an account - Vendoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+</head>
+
+<body>
+    <%- include('partials/nav') %>
+
+    <main class="auth-container signup-container">
+        <h1 class="page-title">Create an account</h1>
+
+        <% if (error) { %>
+        <div class="alert-error"><%= error %></div>
+        <% } %>
+
+        <form action="/signup" method="POST" class="auth-form">
+            <h2 class="section-heading">Personal information</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">First name<span class="req">*</span></label>
+                    <input type="text" id="first_name" name="first_name" placeholder="Enter your first name" value="<%= formData.first_name || '' %>" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last name<span class="req">*</span></label>
+                    <input type="text" id="last_name" name="last_name" placeholder="Enter your last name" value="<%= formData.last_name || '' %>" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone_number">Phone number<span class="req">*</span></label>
+                    <input type="tel" id="phone_number" name="phone_number" placeholder="10 digits" maxlength="10" pattern="\d{10}" value="<%= formData.phone_number || '' %>" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Gender<span class="req">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="gender" value="Male" <%= formData.gender === 'Male' ? 'checked' : '' %> required />
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="gender" value="Female" <%= formData.gender === 'Female' ? 'checked' : '' %> />
+                        <span>Female</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="gender" value="Other" <%= formData.gender === 'Other' ? 'checked' : '' %> />
+                        <span>Other</span>
+                    </label>
+                </div>
+            </div>
+
+            <hr class="form-divider" />
+
+            <h2 class="section-heading">User account</h2>
+
+            <div class="form-group">
+                <label for="username">Username<span class="req">*</span></label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" value="<%= formData.username || '' %>" required />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password<span class="req">*</span></label>
+                    <input type="password" id="password" name="password" placeholder="At least 6-8 long" minlength="6" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm password<span class="req">*</span></label>
+                    <input type="password" id="confirm_password" name="confirm_password" minlength="6" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Role<span class="req">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="role" value="owner_market" <%= formData.role === 'owner_market' ? 'checked' : '' %> required />
+                        <span>Owner market</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="role" value="tenant" <%= formData.role === 'tenant' ? 'checked' : '' %> />
+                        <span>Tenant</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary-yellow">Sign up</button>
+        </form>
+    </main>
+</body>
+
+</html>

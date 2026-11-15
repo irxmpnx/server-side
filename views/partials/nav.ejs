@@ -1,18 +1,18 @@
 <header class="navbar">
-  <a href="/" class="nav-logo">Logo</a>
-  <nav class="nav-links">
-    <a href="/#about">About</a>
-    <a href="/#faq">FAQ</a>
-    <a href="/#contact">Contact</a>
-  </nav>
-  <div class="nav-auth">
-    <% if (currentUser) { %>
-      <a href="/welcome" class="nav-signin">Dashboard</a>
-      <form action="/logout" method="POST" style="display:inline;">
-        <button type="submit" class="nav-logout-btn">Sign out</button>
-      </form>
-    <% } else { %>
-      <a href="/signin" class="nav-signin">Sign in</a>
-    <% } %>
-  </div>
+    <a href="/"><img src="/images/logo.svg" class="nav-logo" alt="Logo" /></a>
+    <nav class="nav-links">
+        <a href="/#about">About</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/#contact">Contact</a>
+    </nav>
+    <div class="nav-auth">
+        <% if (currentUser) { %>
+        <a href="/welcome" class="nav-signin">Dashboard</a>
+        <form action="/logout" method="POST" style="display:inline;">
+            <button type="submit" class="nav-logout-btn">Sign out</button>
+        </form>
+        <% } else { %>
+        <a href="/signin" class="nav-signin">Sign in</a>
+        <% } %>
+    </div>
 </header>

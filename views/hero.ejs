@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find Your Little Spot - Market Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/landing.css" />
+</head>
+
+<body>
+    <%- include('partials/nav') %>
+
+    <main class="hero-section">
+        <!-- Pillars -->
+        <img src="/images/pillar.svg" alt="" class="obj-pillar pillar-left-back" aria-hidden="true" />
+        <img src="/images/pillar.svg" alt="" class="obj-pillar pillar-left-front" aria-hidden="true" />
+        <img src="/images/pillar.svg" alt="" class="obj-pillar pillar-right-front" aria-hidden="true" />
+
+        <!-- Floor -->
+        <img src="/images/floor.svg" alt="" class="obj-floor" aria-hidden="true" />
+
+        <!-- Movable Cart -->
+        <div class="prop-wrap cart-wrap">
+            <img src="/images/cart.svg" alt="Platform trolley cart" class="obj-cart" />
+        </div>
+
+        <!-- Two Separate Movable Boxes -->
+        <div class="prop-wrap box-wrap-1">
+            <img src="/images/box.svg" alt="Cardboard box" class="obj-box" />
+        </div>
+        <div class="prop-wrap box-wrap-2">
+            <img src="/images/box.svg" alt="Cardboard box" class="obj-box" />
+        </div>
+
+        <!-- Top Scalloped Tent -->
+        <img src="/images/tent.svg" alt="" class="obj-tent" aria-hidden="true" />
+
+        <!-- Center Title & CTA -->
+        <div class="hero-content">
+            <h1 class="hero-title">FIND YOUR<br />LITTLE SPOT</h1>
+            <a href="<%= currentUser ? '/welcome' : '/signin' %>" class="btn-explore">Explore</a>
+        </div>
+    </main>
+</body>
+
+</html>

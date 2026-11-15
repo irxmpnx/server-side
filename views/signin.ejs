@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in - Vendoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+</head>
+
+<body>
+    <%- include('partials/nav') %>
+
+    <main class="auth-container signin-container">
+        <h1 class="page-title">
+            Welcome to <span class="brand-accent">Vendoo</span>
+        </h1>
+
+        <% if (error) { %>
+        <div class="alert-error">
+            <%= error %>
+        </div>
+        <% } %>
+
+        <form action="/signin" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" autocomplete="username" required />
+            </div>
+
+            <div class="form-group">
+                <div class="label-row">
+                    <label for="password">Password</label>
+                    <a href="#" class="link-blue">forgot password</a>
+                </div>
+                <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required />
+            </div>
+
+            <button type="submit" class="btn-primary-yellow">Sign in</button>
+
+            <p class="auth-switch">
+                Don't have an account? <a href="/signup" class="link-blue">Sign up</a>
+            </p>
+        </form>
+    </main>
+</body>
+
+</html>
