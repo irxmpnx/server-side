@@ -2,6 +2,7 @@
   const marketList = locals.markets || [];
   const chosenMarket = locals.selectedMarket || '';
   const chosenDates = (locals.selectedDates || []).join(',');
+  const chosenShop = locals.shopName || '';
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,11 +27,11 @@
         <ol class="stepper" aria-label="Rental steps">
             <li class="step is-current" aria-current="step"><span class="dot"></span><span class="step-label">Select market<br />and date</span></li>
             <li class="step"><span class="dot"></span><span class="step-label">Select a spot</span></li>
-            <li class="step"><span class="dot"></span><span class="step-label">Confirm details</span></li>
+            <li class="step"><span class="dot"></span><span class="step-label">Confirm detail</span></li>
             <li class="step"><span class="dot"></span><span class="step-label">Payment</span></li>
         </ol>
 
-        <form action="/rent/step-1" method="POST" class="rent-form" id="rent-form">
+        <form action="/rent/step1" method="POST" class="rent-form" id="rent-form">
             <div class="rent-column">
                 <section class="block">
                     <h2 class="block-title"><label for="market">Select market</label></h2>
@@ -42,6 +43,13 @@
                             <% }) %>
                         </select>
                     </div>
+                </section>
+
+                <section class="block">
+                    <h2 class="block-title"><label for="shop_name">Shop name</label></h2>
+                    <input type="text" id="shop_name" name="shop_name" class="text-input"
+                           placeholder="Enter shop name" maxlength="150" autocomplete="off"
+                           value="<%= chosenShop %>" required />
                 </section>
 
                 <section class="block">

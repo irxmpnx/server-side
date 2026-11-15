@@ -40,21 +40,23 @@ exports.getStep1 = (req, res) => {
   res.render('rent-step1', {
     markets: MARKETS,
     selectedMarket: saved.marketId || '',
+    shopName: saved.shopName || '',
     selectedDates: saved.dates || [],
   });
 };
 
 exports.postStep1 = (req, res) => {
   const { market_id, dates } = req.body;
+  const shopName = String(req.body.shop_name || '').trim().replace(/\s+/g, ' ');
 
   // ตรวจฝั่ง server เสมอ อย่าเชื่อข้อมูลจากเบราว์เซอร์
   const marketExists = MARKETS.some((m) => String(m.id) === String(market_id));
   const list = parseDates(dates);
 
-  if (!marketExists || !list || list.length === 0) {
-    return res.redirect('/rent/step-1');
+  if (!marketExists || !list || list.length === 0 || shopName.length === 0 || shopName.length > 150) {
+    return res.redirect('/rent/step1');
   }
 
-  req.session.rent = { marketId: market_id, dates: list };
-  res.redirect('/rent/step-2'); // หน้าถัดไป (Select a spot) ยังต้องสร้าง
+  req.session.rent = { marketId: market_id, shopName, dates: list };
+  res.redirect('/rent/step2'); // หน้าถัดไป (Select a spot) ยังต้องสร้าง
 };

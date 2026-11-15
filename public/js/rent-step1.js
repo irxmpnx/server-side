@@ -7,6 +7,7 @@
     var summary = document.getElementById('cal-summary');
     var clearBtn = document.getElementById('cal-clear');
     var market = document.getElementById('market');
+    var shopName = document.getElementById('shop_name');
     var submitBtn = document.getElementById('btn-next');
 
     var DEFAULT_TEXT = "Pick one or more days. They don't have to be consecutive.";
@@ -66,7 +67,7 @@
                 keys.map(function (k) { return shortFmt.format(fromKey(k)); }).join(', ');
             clearBtn.hidden = false;
         }
-        submitBtn.disabled = !(market.value && keys.length > 0);
+        submitBtn.disabled = !(market.value && shopName.value.trim() && keys.length > 0);
     }
 
     grid.addEventListener('click', function (e) {
@@ -93,6 +94,7 @@
         sync();
     });
     market.addEventListener('change', sync);
+    shopName.addEventListener('input', sync);
 
     render();
     sync();

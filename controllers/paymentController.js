@@ -16,7 +16,7 @@ function getMarketPayment(marketId) {
 exports.getStep4 = (req, res) => {
   const rent = req.session.rent;
   if (!rent || !rent.marketId || !rent.dates || rent.dates.length === 0) {
-    return res.redirect('/rent/step-1');
+    return res.redirect('/rent/step1');
   }
 
   // ในระบบจริงค่านี้ต้องถูกตั้งตอนกด Confirm Rental (step 3) ไม่ใช่ตอนเปิดหน้านี้
@@ -43,10 +43,10 @@ exports.getStep4 = (req, res) => {
 
 exports.postStep4 = (req, res) => {
   const rent = req.session.rent;
-  if (!rent || !rent.paymentDueAt) return res.redirect('/rent/step-1');
+  if (!rent || !rent.paymentDueAt) return res.redirect('/rent/step1');
 
   // หมดเวลาแล้ว: ไม่รับสลิป
-  if (Date.now() > rent.paymentDueAt) return res.redirect('/rent/step-4');
+  if (Date.now() > rent.paymentDueAt) return res.redirect('/rent/step4');
 
   // กด Next โดยยังไม่แนบสลิป -> Payment required
   if (!req.file) return res.redirect('/rent/payment-required');
@@ -58,11 +58,11 @@ exports.postStep4 = (req, res) => {
 
 exports.getSuccess = (req, res) => {
   const rent = req.session.rent;
-  if (!rent || !rent.slipFile) return res.redirect('/rent/step-4');
+  if (!rent || !rent.slipFile) return res.redirect('/rent/step4');
   res.render('rent-result', { variant: 'success' });
 };
 
 exports.getPaymentRequired = (req, res) => {
-  if (!req.session.rent) return res.redirect('/rent/step-1');
+  if (!req.session.rent) return res.redirect('/rent/step1');
   res.render('rent-result', { variant: 'pending' });
 };

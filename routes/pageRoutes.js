@@ -11,14 +11,14 @@ router.get('/', pageController.getHome);
 
 router.get('/markets', marketController.getMarkets);
 
-router.get('/rent/step-1', rentController.getStep1);
-router.post('/rent/step-1', rentController.postStep1);
+router.get('/rent/step1', rentController.getStep1);
+router.post('/rent/step1', rentController.postStep1);
 
 const paymentController = require('../controllers/paymentController');
 const { uploadSlip } = require('../middleware/upload');
 
-router.get('/rent/step-4', paymentController.getStep4);
-router.post('/rent/step-4', uploadSlip, paymentController.postStep4);
+router.get('/rent/step4', paymentController.getStep4);
+router.post('/rent/step4', uploadSlip, paymentController.postStep4);
 router.get('/rent/success',  paymentController.getSuccess);
 router.get('/rent/payment-required', paymentController.getPaymentRequired);
 

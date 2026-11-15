@@ -27,7 +27,7 @@
 
         <%- include('partials/rent-stepper', { current: 4 }) %>
 
-        <form action="/rent/step-4" method="POST" enctype="multipart/form-data" class="rent-form" id="pay-form">
+        <form action="/rent/step4" method="POST" enctype="multipart/form-data" class="rent-form" id="pay-form">
             <div class="pay-column">
                 <h2 class="block-title">Payment</h2>
 
@@ -60,7 +60,7 @@
             </div>
 
             <div class="rent-actions">
-                <a href="/rent/step-3" class="btn-back">Back</a>
+                <a href="/rent/step3" class="btn-back">Back</a>
                 <button type="submit" class="btn-next" id="btn-next" <%= isExpired ? 'disabled' : '' %>>Next</button>
             </div>
         </form>

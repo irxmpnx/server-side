@@ -116,7 +116,7 @@
     background: #fff;
     color: var(--text-muted);
     font-family: var(--font-ui);   /* Josefin Sans ก่อน แล้วค่อย fallback เป็น IBM Plex Sans Thai */
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     letter-spacing: 0.03em;
     text-align: center;
     text-align-last: center;
@@ -250,6 +250,25 @@
     color: #8a8a8a;
     border-color: #bbb;
     cursor: not-allowed;
+}
+
+.text-input {
+    width: 100%;
+    height: 64px;
+    padding: 0 1.2rem;
+    border: 1px solid var(--vd-ink);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--vd-ink);
+    font-family: var(--font-ui);
+    font-size: 1.2rem;
+    letter-spacing: 0.03em;
+    line-height: 1.8;
+}
+.text-input::placeholder { color: var(--text-muted); }
+.text-input:focus-visible {
+    outline: 3px solid var(--vd-blue-dark);
+    outline-offset: 2px;
 }
 
 @media (max-width: 520px) {
