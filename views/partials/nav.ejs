@@ -7,10 +7,10 @@
     </nav>
     <div class="nav-auth">
         <% if (currentUser) { %>
-        <a href="/welcome" class="nav-signin">Dashboard</a>
-        <form action="/logout" method="POST" style="display:inline;">
+        <a href="/markets" class="nav-signin"><%= currentUser.username %></a>
+        <!-- <form action="/logout" method="POST" style="display:inline;">
             <button type="submit" class="nav-logout-btn">Sign out</button>
-        </form>
+        </form> -->
         <% } else { %>
         <a href="/signin" class="nav-signin">Sign in</a>
         <% } %>

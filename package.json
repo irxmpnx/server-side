@@ -13,10 +13,10 @@
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
+    "multer": "^2.5.0",
     "pg": "^8.13.1"
   },
   "description": "\"# Server-side\"",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/irxmpnx/Server-side-project.git"
