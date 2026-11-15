@@ -10,7 +10,7 @@
     var shopName = document.getElementById('shop_name');
     var submitBtn = document.getElementById('btn-next');
 
-    var DEFAULT_TEXT = "Pick one or more days. They don't have to be consecutive.";
+    var DEFAULT_TEXT = "Pick one or more days.";
     var monthFmt = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
     var shortFmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
 

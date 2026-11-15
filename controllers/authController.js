@@ -64,7 +64,7 @@ exports.postSignUp = async (req, res) => {
         username: newUser.username,
         role: newUser.role
       };
-      req.session.save(() => res.redirect('/welcome'));
+      req.session.save(() => res.redirect('/markets'));
     });
   } catch (err) {
     console.error('SignUp error:', err);

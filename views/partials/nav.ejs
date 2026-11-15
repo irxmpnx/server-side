@@ -26,9 +26,13 @@
     </div>
 
     <nav class="sidebar-nav" aria-label="Account">
+        <% if (currentUser.role === 'owner_market') { %>
+        <a href="/myMarkets">My Markets</a>
+        <% } else { %>
         <a href="/rent/step1">Rent a spot</a>
         <a href="/myRental">My Rental</a>
         <a href="/myFavorite">My Favorite</a>
+        <% } %>
     </nav>
 
     <form action="/logout" method="POST" class="sidebar-logout">

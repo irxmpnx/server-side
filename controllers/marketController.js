@@ -24,3 +24,7 @@ exports.getMarkets = (req, res) => {
     ],
   });
 };
+
+exports.getMyMarkets = (req, res) => {
+  res.send('My Markets (coming soon)');
+};
