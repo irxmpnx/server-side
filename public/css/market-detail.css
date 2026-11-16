@@ -180,3 +180,11 @@
     flex: 1;
   }
 }
+
+#favBtn.is-favorited {
+  border-color: #222;
+}
+#favBtn:disabled {
+  opacity: .65;
+  cursor: wait;
+}

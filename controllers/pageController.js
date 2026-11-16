@@ -21,6 +21,16 @@ exports.getMarketDetail = async (req, res) => {
 
     const { market, operatingDays, spots, elements } = data;
 
+    let isFavorite = false;
+    if (req.session.user && req.session.user.role === 'tenant') {
+      const { client } = require('../configs/db');
+      const favoriteRes = await client.query(
+        'SELECT 1 FROM user_favorites WHERE user_id = $1 AND market_id = $2;',
+        [req.session.user.id, marketId]
+      );
+      isFavorite = favoriteRes.rowCount > 0;
+    }
+
     const images =
       Array.isArray(market.image_urls) && market.image_urls.length > 0
         ? market.image_urls
@@ -43,6 +53,7 @@ exports.getMarketDetail = async (req, res) => {
       timeLabel,
       spots,
       elements,
+      isFavorite,
     });
   } catch (err) {
     console.error('getMarketDetail error:', err);

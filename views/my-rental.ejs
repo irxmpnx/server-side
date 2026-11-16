@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Rental - Vendoo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/sidebar.css" />
+  <link rel="stylesheet" href="/css/my-rental.css" />
+</head>
+<body>
+  <%- include('partials/nav') %>
+
+  <main class="my-rental-page">
+    <h1>My Rental</h1>
+
+    <% if (message) { %>
+      <% if (message === 'cancelled') { %><p class="rental-notice success">Rental cancelled successfully.</p><% } %>
+      <% if (message === 'checked-in') { %><p class="rental-notice success">Check-in completed.</p><% } %>
+      <% if (message === 'not-cancellable' || message === 'cannot-check-in') { %><p class="rental-notice">This action is not available for this rental.</p><% } %>
+      <% if (message === 'error') { %><p class="rental-notice">Something went wrong. Please try again.</p><% } %>
+    <% } %>
+
+    <nav class="rental-filters" aria-label="Filter rentals">
+      <a href="/myRental?status=all" class="<%= activeFilter === 'all' ? 'active' : '' %>">All</a>
+      <a href="/myRental?status=paid" class="<%= activeFilter === 'paid' ? 'active' : '' %>">Paid</a>
+      <a href="/myRental?status=unpaid" class="<%= activeFilter === 'unpaid' ? 'active' : '' %>">Unpaid</a>
+      <a href="/myRental?status=cancel" class="<%= activeFilter === 'cancel' ? 'active' : '' %>">Cancel</a>
+    </nav>
+
+    <section class="rental-list">
+      <% const visibleRentals = rentals.filter((r) => {
+        if (activeFilter === 'paid') return r.payment_status === 'paid';
+        if (activeFilter === 'unpaid') return r.payment_status === 'unpaid';
+        if (activeFilter === 'cancel') return r.payment_status === 'cancelled';
+        return true;
+      }); %>
+
+      <% if (visibleRentals.length === 0) { %>
+        <p class="empty-rentals">No rentals found.</p>
+      <% } %>
+
+      <% visibleRentals.forEach((rental) => { %>
+        <article class="rental-card">
+          <div class="rental-details">
+            <div class="detail-item market-detail">
+              <span class="detail-label">Market:</span>
+              <span class="detail-value"><%= rental.market_name %></span>
+              <span class="detail-value market-address"><%= rental.market_location %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Spot:</span>
+              <span class="detail-value"><%= rental.spot_name %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Price:</span>
+              <span class="detail-value"><%= Number(rental.total_price).toLocaleString('en-US') %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Rental date:</span>
+              <span class="detail-value date-list">
+                <% rental.rental_dates.forEach((date) => { %><span><%= date %></span><% }) %>
+              </span>
+            </div>
+            <div class="detail-item status-detail">
+              <span class="detail-label">Status:</span>
+              <span class="status-pill <%= rental.payment_status %>"><i></i><%= rental.payment_status %></span>
+            </div>
+            <div class="detail-item phone-detail">
+              <span class="detail-label">Tel.</span>
+              <span class="detail-value"><%= rental.market_phone || '-' %></span>
+            </div>
+          </div>
+
+          <div class="rental-card-footer">
+            <div class="rental-number">
+              <span class="detail-label">Rental number:</span>
+              <span class="detail-value">#<%= rental.rental_code %></span>
+              <% if (rental.checked_in_at) { %><span class="checked-in-label">Checked in</span><% } %>
+            </div>
+            <div class="rental-actions">
+              <% if (rental.payment_status === 'unpaid') { %>
+                <form action="/myRental/<%= rental.id %>/cancel" method="POST" onsubmit="return confirm('Cancel this rental?')">
+                  <button class="btn-cancel" type="submit">Cancel rental</button>
+                </form>
+                <a href="/myRental/<%= rental.id %>/pay" class="btn-pay-now">Pay</a>
+              <% } else if (rental.payment_status === 'paid' && !rental.checked_in_at) { %>
+                <form action="/myRental/<%= rental.id %>/check-in" method="POST" onsubmit="return confirm('Confirm check-in?')">
+                  <button class="btn-pay" type="submit">Check in</button>
+                </form>
+              <% } else if (rental.payment_status === 'cancelled') { %>
+                <div class="cancel-date"><span class="detail-label">Cancel date:</span><span class="detail-value"><%= rental.cancelled_at ? new Date(rental.cancelled_at).toLocaleDateString('en-GB') : '-' %></span></div>
+              <% } %>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </section>
+  </main>
+</body>
+</html>

@@ -5,6 +5,7 @@ const pageController = require('../controllers/pageController');
 const marketController = require('../controllers/marketController');
 const rentController = require('../controllers/rentController');
 const paymentController = require('../controllers/paymentController');
+const myRentalController = require('../controllers/myRentalController');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { uploadSlip } = require('../middleware/upload');
 
@@ -15,6 +16,17 @@ router.get('/welcome', requireAuth, (req, res) => {
   }
   return res.redirect('/markets');
 });
+
+// Tenant's rental history
+router.get('/myRental', requireAuth, requireRole('tenant'), myRentalController.getMyRental);
+router.post('/myRental/:id/cancel', requireAuth, requireRole('tenant'), myRentalController.cancelRental);
+router.post('/myRental/:id/check-in', requireAuth, requireRole('tenant'), myRentalController.checkInRental);
+
+// Tenant favorites
+const favoriteController = require('../controllers/favoriteController');
+router.get('/myFavorite', requireAuth, requireRole('tenant'), favoriteController.getMyFavorite);
+router.post('/myFavorite/:marketId', requireAuth, requireRole('tenant'), favoriteController.addFavorite);
+router.delete('/myFavorite/:marketId', requireAuth, requireRole('tenant'), favoriteController.removeFavorite);
 
 // Tenant Market Browse & Details
 router.get('/markets', requireAuth, marketController.getMarkets);

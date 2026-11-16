@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Favorite - Vendoo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/my-favorite.css">
+</head>
+<body>
+  <%- include('partials/nav') %>
+
+  <main class="favorite-page">
+    <h1 class="favorite-title">My Favorite</h1>
+
+    <% if (favorites.length) { %>
+      <section class="favorite-list" aria-label="Favorite markets">
+        <% favorites.forEach((market) => { %>
+          <article class="favorite-card" data-market-id="<%= market.id %>">
+            <img class="favorite-image"
+                 src="<%= market.image %>"
+                 alt="<%= market.name %>"
+                 onerror="this.src='/images/m1.png'">
+
+            <div class="favorite-info">
+              <h2><%= market.name %></h2>
+              <p class="favorite-label">Operating day:</p>
+              <p><%= market.daysLabel %></p>
+              <p class="favorite-label favorite-time-label">Time:</p>
+              <p><%= market.timeLabel %></p>
+            </div>
+
+            <div class="favorite-actions">
+              <button type="button" class="favorite-heart" aria-label="Remove <%= market.name %> from favorites"
+                      title="Remove from favorites">
+                  <img src="/images/heart.svg" alt="">
+              </button>
+              <a class="favorite-view-btn" href="/markets/<%= market.id %>">View details</a>
+            </div>
+          </article>
+        <% }) %>
+      </section>
+    <% } else { %>
+      <section class="favorite-empty">
+        <div class="empty-heart">
+          <img src="/images/heart_outline.svg" alt="">
+        </div>
+        <h2>No favorite markets yet</h2>
+        <p>Markets you add to your favorites will appear here.</p>
+        <a href="/markets" class="favorite-view-btn">Explore markets</a>
+      </section>
+    <% } %>
+  </main>
+
+  <script>
+    document.querySelectorAll('.favorite-heart').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const card = button.closest('.favorite-card');
+        const marketId = card.dataset.marketId;
+        button.disabled = true;
+        try {
+          const response = await fetch(`/myFavorite/${marketId}`, {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
+          });
+          if (!response.ok) throw new Error('Request failed');
+          card.remove();
+          if (!document.querySelector('.favorite-card')) {
+            location.reload();
+          }
+        } catch (error) {
+          alert('Unable to remove this market from favorites. Please try again.');
+          button.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+.my-rental-page {
+  min-height: calc(100vh - 64px);
+  background: #fff;
+  color: #111;
+  padding: 4.5rem 24px 5rem;
+  font-family: 'Josefin Sans', 'IBM Plex Sans Thai', sans-serif;
+}
+.my-rental-page h1 {
+  max-width: 860px;
+  margin: 0 auto 2.5rem;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  font-weight: 700;
+}
+.rental-filters {
+  max-width: 860px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.rental-filters a {
+  color: #111;
+  text-decoration: none;
+  padding: 7px 16px 5px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 1.05rem;
+}
+.rental-filters a.active {
+  background: #6eb2f6;
+  border-color: #222;
+}
+.rental-list { max-width: 860px; margin: 0 auto; }
+.rental-card {
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 27px 28px 18px;
+  margin-bottom: 27px;
+  background: #fff;
+}
+.rental-details {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr 1fr 1.35fr 1.05fr;
+  column-gap: 18px;
+  row-gap: 26px;
+  padding: 0 12px 16px;
+}
+.detail-item { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.detail-label { color: #999; font-size: 1.05rem; }
+.detail-value { color: #111; font-size: 1.05rem; line-height: 1.25; overflow-wrap: anywhere; }
+.market-address { margin-top: 2px; }
+.date-list { display: flex; flex-direction: column; }
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  min-width: 106px;
+  border: 1px solid #555;
+  border-radius: 7px;
+  padding: 3px 8px;
+  font-size: .88rem;
+  line-height: 1.1;
+}
+.status-pill i { width: 10px; height: 10px; border-radius: 50%; background: #888; }
+.status-pill.unpaid i { background: #f22; }
+.status-pill.paid i { background: #70bd36; }
+.status-pill.cancelled i { background: #888; }
+.phone-detail { grid-column: 1 / 3; }
+.rental-card-footer {
+  border-top: 1px solid #bbb;
+  padding: 14px 0 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.rental-number { display: flex; flex-direction: column; gap: 5px; }
+.rental-actions { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+.rental-actions form { margin: 0; }
+.btn-cancel, .btn-pay {
+  min-width: 136px;
+  min-height: 46px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #fff;
+  color: #111;
+  padding: 10px 15px 7px;
+  font: inherit;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+.btn-pay { background: #fffa5b; min-width: 136px; }
+.btn-cancel:hover { background: #f4f4f4; }
+.btn-pay:hover { background: #efe92a; }
+.btn-pay-now {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 136px;
+  min-height: 46px;
+  padding: 0 24px;
+  border: 1px solid #111;
+  border-radius: 8px;
+  background: #FFFA5B;
+  color: #111;
+  font-family: inherit;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-pay-now:hover {
+  background: #fff04d;
+}
+.cancel-date { display: flex; flex-direction: column; gap: 5px; }
+.checked-in-label { color: #4f9d28; font-size: .9rem; }
+.empty-rentals { text-align: center; padding: 48px 16px; color: #888; border: 1px solid #ddd; border-radius: 6px; }
+.rental-notice { max-width: 860px; margin: -1.5rem auto 1.5rem; color: #9b3d32; }
+.rental-notice.success { color: #39852b; }
+@media (max-width: 760px) {
+  .my-rental-page { padding: 2.5rem 16px 3rem; }
+  .my-rental-page h1 { margin-bottom: 1.8rem; }
+  .rental-filters { gap: .25rem; justify-content: space-between; margin-bottom: 1.2rem; }
+  .rental-filters a { padding: 7px 11px 5px; }
+  .rental-card { padding: 20px 14px 15px; }
+  .rental-details { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; padding: 0 4px 16px; }
+  .status-detail { grid-column: 2; grid-row: 2; }
+  .phone-detail { grid-column: 1 / -1; }
+  .rental-card-footer { padding-left: 4px; align-items: flex-start; flex-direction: column; }
+  .rental-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
+}
