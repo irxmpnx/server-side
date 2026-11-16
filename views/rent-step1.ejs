@@ -3,6 +3,7 @@
   const chosenMarket = locals.selectedMarket || '';
   const chosenDates = (locals.selectedDates || []).join(',');
   const chosenShop = locals.shopName || '';
+  const openDaysByMarket = locals.marketDays || {};
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +56,7 @@
                 <section class="block">
                     <h2 class="block-title" id="date-heading">Select date</h2>
 
-                    <div class="calendar" id="calendar" role="group" aria-labelledby="date-heading">
+                    <div class="calendar" id="calendar" role="group" aria-labelledby="date-heading" data-market-days="<%= JSON.stringify(openDaysByMarket) %>">
                         <div class="cal-head">
                             <button type="button" class="cal-nav" id="cal-prev" aria-label="Previous month">&lt;</button>
                             <p class="cal-title" id="cal-title" aria-live="polite"></p>

@@ -102,10 +102,12 @@
               <%= isFavorite ? 'Favorited' : 'Add to favorite' %>
           </span>
       </button>
-      <% } else { %>
+      <% } else if (!currentUser) { %>
         <a href="/signin" class="btn-insight-outline"><span class="heart-icon">♡</span> Add to favorite</a>
       <% } %>
-      <a href="/rent/step1?marketId=<%= market.id %>" class="btn-insight-yellow">Rent a spot</a>
+      <% if (!currentUser || currentUser.role !== 'owner_market') { %>
+        <a href="/rent/step1?marketId=<%= market.id %>" class="btn-insight-yellow">Rent a spot</a>
+      <% } %>
     </div>
   </main>
 

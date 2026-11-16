@@ -86,24 +86,25 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 1.4rem;
+    gap: 1.2rem;
     margin-top: 3.2rem;
     margin-bottom: 2.4rem;
     padding-left: 0.6rem;
 }
 .filter {
     font-family: var(--font-ui);
-    font-size: 1rem;
-    color: var(--vd-ink);
+    font-size: 1.05rem;
+    line-height: normal;
+    color: #111;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 4px;
-    padding: 0.1rem 0.9rem;
+    border-radius: 6px;
+    padding: 7px 16px 5px;
     cursor: pointer;
 }
 .filter.is-active {
-    background: var(--vd-blue);
-    border-color: #2f5fb3;
+    background: #6eb2f6;
+    border-color: #222;
 }
 .filter:focus-visible {
     outline: 3px solid var(--vd-blue);

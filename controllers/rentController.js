@@ -25,6 +25,15 @@ function parseDates(raw) {
   return unique.sort();
 }
 
+// Returns the weekdays (0 = Sunday ... 6 = Saturday) a market is open on.
+async function getOpenWeekdays(marketId) {
+  const { rows } = await client.query(
+    `SELECT day_of_week FROM market_operating_days WHERE market_id = $1 ORDER BY day_of_week;`,
+    [marketId]
+  );
+  return rows.map((r) => Number(r.day_of_week));
+}
+
 // STEP 1: Select Market & Dates
 exports.getStep1 = async (req, res) => {
   try {
@@ -33,8 +42,19 @@ exports.getStep1 = async (req, res) => {
       `SELECT id, name FROM markets WHERE is_verified = TRUE ORDER BY name ASC;`
     );
 
+    // Open weekdays per market, so the calendar only offers bookable days
+    const { rows: dayRows } = await client.query(
+      `SELECT market_id, day_of_week FROM market_operating_days ORDER BY day_of_week;`
+    );
+    const marketDays = {};
+    markets.forEach((m) => { marketDays[m.id] = []; });
+    dayRows.forEach((r) => {
+      if (marketDays[r.market_id]) marketDays[r.market_id].push(Number(r.day_of_week));
+    });
+
     res.render('rent-step1', {
       markets,
+      marketDays,
       selectedMarket: req.query.marketId || saved.marketId || '',
       shopName: saved.shopName || '',
       selectedDates: saved.dates || [],
@@ -56,7 +76,15 @@ exports.postStep1 = async (req, res) => {
     );
     const list = parseDates(dates);
 
+    // Every selected date must fall on a day the market is open
+    let allOpen = false;
+    if (marketRes.rows.length > 0 && list && list.length > 0) {
+      const openDays = await getOpenWeekdays(market_id);
+      allOpen = list.every((d) => openDays.includes(parseDate(d).getDay()));
+    }
+
     if (
+      !allOpen ||
       marketRes.rows.length === 0 ||
       !list ||
       list.length === 0 ||
