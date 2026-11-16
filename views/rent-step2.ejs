@@ -1,0 +1,200 @@
+<%
+  const m = locals.market || {};
+  const spotList = locals.spots || [];
+  const elementList = locals.elements || [];
+  const selectedId = String(locals.selectedSpotId || '');
+  const chosenDates = locals.dates || [];
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select a Spot - Vendoo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/rent.css" />
+</head>
+
+<body>
+  <%- include('partials/nav') %>
+
+  <main class="rent">
+    <h1 class="rent-title">Rent a spot</h1>
+
+    <%- include('partials/rent-stepper', { current: 2 }) %>
+
+    <form action="/rent/step2" method="POST" class="rent-form rent-step2-form" id="spot-form">
+      <div class="spot-map-section">
+        <div class="spot-map-header">
+          <h2 class="section-bar-title" style="margin-bottom: 0;">Select a spot</h2>
+
+          <div class="spot-legend">
+            <span><i class="legend-box avail"></i> Available</span>
+            <span><i class="legend-box rented"></i> Rented</span>
+          </div>
+        </div>
+
+        <!-- Proportional Market Map (Matches Publish Step 3 Coordinates & Ratio) -->
+        <div class="tenant-map-wrapper">
+          <div class="tenant-map-canvas" id="tenantMapCanvas">
+            <span class="tenant-map-watermark">Market Map Layout</span>
+          </div>
+        </div>
+
+        <!-- Bottom Details (Left) & Total Price (Right) matching RENT-STEP-2.svg -->
+        <div class="step2-bottom-row">
+          <div class="spot-details-box">
+            <p class="details-heading">
+              <span class="info-circle" aria-hidden="true">i</span> Details
+            </p>
+            <ol class="details-rules-list" id="spotDetailsList">
+              <li>Please read the rental rules carefully before booking.</li>
+              <li>Selected spot: <strong id="dispSpotName">None selected</strong> (<span id="dispSpotSize">-</span>)</li>
+              <li>Rental dates (<%= chosenDates.length %> day<%= chosenDates.length > 1 ? 's' : '' %>): <%= chosenDates.join(', ') %></li>
+              <li>Payment must be completed within 1 hour after confirming your rental.</li>
+            </ol>
+          </div>
+
+          <div class="spot-price-box">
+            <span class="price-lbl">Price</span>
+            <strong class="price-val" id="dispTotalPrice">0</strong>
+            <span class="price-unit">baht</span>
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" name="spot_id" id="spotIdInput" value="<%= selectedId %>" required />
+
+      <div class="rent-actions">
+        <a href="/rent/step1" class="btn-back">Back</a>
+        <button type="submit" class="btn-next" id="btn-next" <%= selectedId ? '' : 'disabled' %>>Next</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const GRID_SIZE = 20;
+    const MAX_CANVAS_WIDTH = 720;
+    const DAY_COUNT = <%= chosenDates.length || 1 %>;
+
+    const marketArea = {
+      width: Number(<%= m.area_width || 200 %>) || 200,
+      length: Number(<%= m.area_length || 100 %>) || 100
+    };
+
+    const spots = <%- JSON.stringify(spotList) %>;
+    const elements = <%- JSON.stringify(elementList) %>;
+    let selectedSpotId = "<%= selectedId %>";
+
+    const canvas = document.getElementById('tenantMapCanvas');
+    const spotInput = document.getElementById('spotIdInput');
+    const nextBtn = document.getElementById('btn-next');
+
+    function snap(val) {
+      return Math.round(val / GRID_SIZE) * GRID_SIZE;
+    }
+
+    const rawScale = Math.min(MAX_CANVAS_WIDTH / marketArea.width, 460 / marketArea.length);
+    const pxPerMeter = Math.max(3.6, rawScale);
+    const canvasW = Math.max(240, snap(marketArea.width * pxPerMeter));
+    const canvasH = Math.max(200, snap(marketArea.length * pxPerMeter));
+
+    canvas.style.width = canvasW + 'px';
+    canvas.style.height = canvasH + 'px';
+
+    function getSpotPixelSize(widthMeters, lengthMeters) {
+      const ratio = widthMeters / Math.max(0.5, lengthMeters);
+      let w = Math.round(widthMeters * pxPerMeter);
+      let h = Math.round(lengthMeters * pxPerMeter);
+
+      const minBox = 44;
+      if (w < minBox && h < minBox) {
+        if (ratio >= 1) {
+          w = minBox;
+          h = Math.max(32, Math.round(minBox / ratio));
+        } else {
+          h = minBox;
+          w = Math.max(32, Math.round(minBox * ratio));
+        }
+      }
+      return { w, h };
+    }
+
+    function updateSummary(spot) {
+      if (!spot) {
+        document.getElementById('dispSpotName').textContent = 'None selected';
+        document.getElementById('dispSpotSize').textContent = '-';
+        document.getElementById('dispTotalPrice').textContent = '0';
+        nextBtn.disabled = true;
+        return;
+      }
+
+      const pricePerDay = Number(spot.price_per_day) || 0;
+      const total = pricePerDay * DAY_COUNT;
+
+      document.getElementById('dispSpotName').textContent = spot.spot_name;
+      document.getElementById('dispSpotSize').textContent = `${spot.width}m × ${spot.length}m • ฿${pricePerDay.toLocaleString()}/day`;
+      document.getElementById('dispTotalPrice').textContent = total.toLocaleString();
+      spotInput.value = spot.id;
+      nextBtn.disabled = false;
+    }
+
+    function renderMap() {
+      canvas.innerHTML = '<span class="tenant-map-watermark">Market Map Layout</span>';
+
+      spots.forEach((s) => {
+        const { w, h } = getSpotPixelSize(Number(s.width) || 3, Number(s.length) || 2.5);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+
+        const isBooked = Boolean(s.is_booked);
+        const isSelected = String(s.id) === String(selectedSpotId) && !isBooked;
+
+        btn.className = 't-spot-item' +
+          (isBooked ? ' is-booked' : '') +
+          (isSelected ? ' is-selected' : '');
+
+        btn.style.width = w + 'px';
+        btn.style.height = h + 'px';
+        btn.style.left = (Number(s.pos_x) || 0) + 'px';
+        btn.style.top = (Number(s.pos_y) || 0) + 'px';
+        btn.disabled = isBooked;
+
+        btn.innerHTML = `
+          <strong>${s.spot_name}</strong>
+          <small>${s.width}&times;${s.length}m</small>
+        `;
+
+        if (!isBooked) {
+          btn.onclick = () => {
+            selectedSpotId = String(s.id);
+            updateSummary(s);
+            renderMap();
+          };
+        }
+
+        canvas.appendChild(btn);
+      });
+
+      elements.forEach((el) => {
+        const div = document.createElement('div');
+        div.className = el.element_type === 'entry' ? 't-entry-item' : 't-facility-item';
+        div.style.left = (Number(el.pos_x) || 0) + 'px';
+        div.style.top = (Number(el.pos_y) || 0) + 'px';
+        div.textContent = el.label;
+        canvas.appendChild(div);
+      });
+    }
+
+    const initialSpot = spots.find((s) => String(s.id) === selectedSpotId && !s.is_booked);
+    if (!initialSpot) selectedSpotId = '';
+    updateSummary(initialSpot || null);
+    renderMap();
+  </script>
+</body>
+
+</html>

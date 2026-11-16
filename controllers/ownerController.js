@@ -12,15 +12,66 @@ exports.getMyMarkets = async (req, res) => {
   }
 };
 
+exports.startNewMarket = (req, res) => {
+  req.session.marketDraft = {
+    editMarketId: null,
+    details: {},
+    operatingDays: [],
+    area: { width: 200, length: 100 },
+    spots: [],
+    elements: [],
+  };
+  req.session.save(() => res.redirect('/owner/markets/new/step-1'));
+};
+
+exports.getEditMarket = async (req, res) => {
+  try {
+    const marketId = Number(req.params.id);
+    const data = await MarketModel.getFullMarketForEdit(marketId, req.session.user.id);
+    if (!data) return res.redirect('/owner/markets');
+
+    const { market, operatingDays, spots, elements } = data;
+
+    req.session.marketDraft = {
+      editMarketId: market.id,
+      details: {
+        name: market.name,
+        genre: market.genre,
+        location: market.location,
+        phone_number: market.phone_number,
+        description: market.description || '',
+        image_urls: market.image_urls || [market.cover_image_url || '/images/m1.png'],
+        main_image_index: Number(market.main_image_index) || 0,
+        bank_name: market.bank_name || '',
+        bank_account_number: market.bank_account_number || '',
+        qr_code_url: market.qr_code_url || '',
+      },
+      operatingDays,
+      area: {
+        width: Number(market.area_width) || 200,
+        length: Number(market.area_length) || 100,
+      },
+      spots,
+      elements,
+    };
+
+    req.session.save(() => res.redirect('/owner/markets/new/step-1'));
+  } catch (err) {
+    console.error('getEditMarket error:', err);
+    res.redirect('/owner/markets');
+  }
+};
+
 // STEP 1: Market Details + Multiple Images
 exports.getPublishStep1 = (req, res) => {
   if (!req.session.marketDraft) {
     req.session.marketDraft = {
+      editMarketId: null,
       details: {},
       operatingDays: [],
       area: { width: 200, length: 100 },
       spots: [],
-      elements: []
+      elements: [],
     };
   }
   res.render('owner/publish-step1', { draft: req.session.marketDraft.details });
@@ -36,14 +87,23 @@ exports.postPublishStep1 = (req, res) => {
     bank_name,
     bank_account_number,
     qr_code_url,
-    main_image_index
+    kept_images,
+    main_image_index,
   } = req.body;
 
-  const existingImages = req.session.marketDraft?.details?.image_urls || [];
-  let imageUrls =
+  let keptUrls = [];
+  try {
+    if (kept_images) keptUrls = JSON.parse(kept_images);
+  } catch (e) {
+    keptUrls = req.session.marketDraft?.details?.image_urls || [];
+  }
+
+  const newlyUploadedUrls =
     req.files && req.files.length > 0
       ? req.files.map((file) => `/uploads/markets/${file.filename}`)
-      : [...existingImages];
+      : [];
+
+  const imageUrls = [...keptUrls, ...newlyUploadedUrls];
 
   const mainIdx = Number(main_image_index) || 0;
   if (imageUrls.length > 1 && mainIdx > 0 && mainIdx < imageUrls.length) {
@@ -62,8 +122,8 @@ exports.postPublishStep1 = (req, res) => {
       image_urls: imageUrls,
       bank_name,
       bank_account_number,
-      qr_code_url: qr_code_url || ''
-    }
+      qr_code_url: qr_code_url || req.session.marketDraft?.details?.qr_code_url || '',
+    },
   };
   res.redirect('/owner/markets/new/step-2');
 };
@@ -74,7 +134,7 @@ exports.getPublishStep2 = (req, res) => {
     return res.redirect('/owner/markets/new/step-1');
   }
   res.render('owner/publish-step2', {
-    operatingDays: req.session.marketDraft.operatingDays || []
+    operatingDays: req.session.marketDraft.operatingDays || [],
   });
 };
 
@@ -89,7 +149,7 @@ exports.postPublishStep2 = (req, res) => {
     day_of_week: Number(dayIdx),
     day_name: DAY_NAMES[Number(dayIdx)],
     open_time: req.body[`open_${dayIdx}`] || '08:00',
-    close_time: req.body[`close_${dayIdx}`] || '14:00'
+    close_time: req.body[`close_${dayIdx}`] || '14:00',
   }));
 
   req.session.marketDraft.operatingDays = operatingDays;
@@ -115,7 +175,7 @@ exports.postPublishStep3 = (req, res) => {
 
   req.session.marketDraft.area = {
     width: Number(area_width) || 200,
-    length: Number(area_length) || 100
+    length: Number(area_length) || 100,
   };
   req.session.marketDraft.spots = parsed.spots || [];
   req.session.marketDraft.elements = parsed.elements || [];
@@ -123,38 +183,52 @@ exports.postPublishStep3 = (req, res) => {
   res.redirect('/owner/markets/new/step-4');
 };
 
-// STEP 4: Verify & Publish
+// STEP 4: Verify & Publish / Save Edits
 exports.getPublishStep4 = (req, res) => {
-  const draft = req.session.marketDraft;
-  if (!draft?.details?.name) {
+  if (!req.session.marketDraft?.details?.name) {
     return res.redirect('/owner/markets/new/step-1');
   }
-  res.render('owner/publish-step4', { draft });
+  res.render('owner/publish-step4', { draft: req.session.marketDraft });
 };
 
-exports.postPublishMarket = async (req, res) => {
+exports.postPublishStep4 = async (req, res) => {
   try {
     const draft = req.session.marketDraft;
-    if (!draft?.details?.name) {
-      return res.redirect('/owner/markets/new/step-1');
+    if (!draft?.details?.name) return res.redirect('/owner/markets/new/step-1');
+
+    draft.details.bank_name = req.body.bank_name || draft.details.bank_name;
+    draft.details.bank_account_number =
+      req.body.bank_account_number || draft.details.bank_account_number;
+    if (req.file) {
+      draft.details.qr_code_url = `/uploads/markets/${req.file.filename}`;
+    }
+
+    const ownerId = req.session.user.id;
+
+    if (draft.editMarketId) {
+      const updatedId = await MarketModel.updateFullMarket(draft.editMarketId, ownerId, draft);
+      delete req.session.marketDraft;
+      return req.session.save(() => res.redirect(`/owner/markets/${updatedId}/dashboard`));
     }
 
     const marketId = await MarketModel.createFullMarket({
-      ownerId: req.session.user.id,
+      ownerId,
       details: draft.details,
       operatingDays: draft.operatingDays || [],
-      area: draft.area || { width: 100, length: 100 },
+      area: draft.area || { width: 200, length: 100 },
       spots: draft.spots || [],
-      elements: draft.elements || []
+      elements: draft.elements || [],
     });
 
     delete req.session.marketDraft;
-    res.render('owner/publish-success', { marketId });
+    return req.session.save(() => res.render('owner/publish-success', { marketId }));
   } catch (err) {
-    console.error('postPublishMarket error:', err);
-    res.status(500).send('Failed to publish market.');
+    console.error('postPublishStep4 error:', err);
+    res.status(500).send('Error saving market.');
   }
 };
+
+exports.postPublishMarket = exports.postPublishStep4;
 
 // OWNER DASHBOARD
 exports.getDashboard = async (req, res) => {
@@ -188,5 +262,28 @@ exports.postDenyRental = async (req, res) => {
   } catch (err) {
     console.error('postDenyRental error:', err);
     res.status(500).send('Error denying rental.');
+  }
+};
+
+exports.postToggleMarketStatus = async (req, res) => {
+  try {
+    const marketId = Number(req.params.id);
+    await MarketModel.toggleMarketOpen(marketId, req.session.user.id);
+    const backTo = req.body.redirect_to || `/owner/markets/${marketId}/dashboard`;
+    res.redirect(backTo);
+  } catch (err) {
+    console.error('postToggleMarketStatus error:', err);
+    res.status(500).send('Error updating market status.');
+  }
+};
+
+exports.postDeleteMarket = async (req, res) => {
+  try {
+    const marketId = Number(req.params.id);
+    await MarketModel.deleteMarket(marketId, req.session.user.id);
+    res.redirect('/owner/markets');
+  } catch (err) {
+    console.error('postDeleteMarket error:', err);
+    res.status(500).send('Error deleting market.');
   }
 };

@@ -46,7 +46,7 @@ const uploadSlip = (req, res, next) => {
       err.code === 'LIMIT_FILE_SIZE'
         ? 'The file is larger than 5 MB.'
         : 'Please attach a JPG, PNG or WebP image.';
-    res.redirect('/rent/step-4');
+    res.redirect('/rent/step4');
   });
 };
 

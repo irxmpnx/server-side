@@ -64,7 +64,8 @@ exports.postSignUp = async (req, res) => {
         username: newUser.username,
         role: newUser.role
       };
-      req.session.save(() => res.redirect('/markets'));
+      const target = newUser.role === 'owner_market' ? '/owner/markets' : '/markets';
+      req.session.save(() => res.redirect(target));;
     });
   } catch (err) {
     console.error('SignUp error:', err);
@@ -105,7 +106,8 @@ exports.postSignIn = async (req, res) => {
         username: user.username,
         role: user.role
       };
-      req.session.save(() => res.redirect('/markets'));
+      const target = user.role === 'owner_market' ? '/owner/markets' : '/markets';
+      req.session.save(() => res.redirect(target));
     });
   } catch (err) {
     console.error('SignIn error:', err);

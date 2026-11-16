@@ -25,7 +25,23 @@
 
       <div class="dash-top-actions">
         <a href="/owner/markets" class="btn-outline">&lt; All markets</a>
-        <a href="/owner/markets/new/step-1" class="btn-outline">Edit details</a>
+        <a href="/owner/markets/<%= market.id %>/edit" class="btn-outline">Edit details</a>
+
+        <form action="/owner/markets/<%= market.id %>/toggle-status" method="POST" style="display:inline;">
+          <input type="hidden" name="redirect_to" value="/owner/markets/<%= market.id %>/dashboard" />
+          <button type="submit" class="btn-outline">
+            <%= market.is_open ? 'Close market' : 'Open market' %>
+          </button>
+        </form>
+
+        <form
+          action="/owner/markets/<%= market.id %>/delete"
+          method="POST"
+          style="display:inline;"
+          onsubmit="return confirm('Delete <%= market.name %> and all its spots/bookings? This cannot be undone.');"
+        >
+          <button type="submit" class="btn-outline btn-delete-market">Delete</button>
+        </form>
       </div>
     </div>
 
@@ -79,7 +95,7 @@
           <% } %>
 
           <% rentals.forEach(r => { %>
-            <tr>
+            <tr id="row-<%= r.id %>" class="booking-summary-row">
               <td><%= r.first_name %> <%= r.last_name.charAt(0) %>.</td>
               <td><%= r.spot_name %></td>
               <td><%= r.dates.join(', ') %></td>
@@ -89,7 +105,12 @@
                 <span class="status-text <%= r.approval_status %>"><%= r.approval_status %></span>
               </td>
               <td class="row-actions">
-                <button type="button" class="btn-sm btn-outline" onclick="alert('Tenant: <%= r.first_name %> <%= r.last_name %>\nTel: <%= r.phone_number %>\nCode: <%= r.rental_code %>')">
+                <button
+                  type="button"
+                  class="btn-sm btn-outline"
+                  onclick="toggleRentalDetail(<%= r.id %>, this)"
+                  aria-expanded="false"
+                >
                   Details
                 </button>
                 <% if (r.approval_status === 'waiting') { %>
@@ -104,10 +125,73 @@
                 <% } %>
               </td>
             </tr>
+
+            <!-- Expandable Detail Panel Directly Under Row -->
+            <tr id="detail-<%= r.id %>" class="booking-detail-row" hidden>
+              <td colspan="7">
+                <div class="detail-drawer-card">
+                  <div class="detail-info-col">
+                    <p><strong>Rental Code:</strong> <%= r.rental_code %></p>
+                    <p><strong>Tenant:</strong> <%= r.first_name %> <%= r.last_name %></p>
+                    <p><strong>Phone:</strong> <%= r.phone_number || '-' %></p>
+                    <% if (r.shop_name) { %>
+                      <p><strong>Shop Name:</strong> <%= r.shop_name %></p>
+                    <% } %>
+                    <p><strong>Spot:</strong> <%= r.spot_name %></p>
+                    <p><strong>Booked Dates:</strong> <%= r.dates.join(', ') %></p>
+                    <p><strong>Total Price:</strong> ฿<%= r.total_price %> (<%= r.payment_status %>)</p>
+                  </div>
+
+                  <div class="detail-slip-col">
+                    <span class="slip-label">Payment Slip</span>
+                    <% if (r.slip_image_url) { %>
+                      <a href="/slips/<%= r.slip_image_url %>" target="_blank" rel="noopener">
+                        <img
+                          src="/slips/<%= r.slip_image_url %>"
+                          alt="Payment slip for <%= r.rental_code %>"
+                          class="slip-thumb"
+                        />
+                      </a>
+                    <% } else { %>
+                      <div class="no-slip-box">No slip uploaded</div>
+                    <% } %>
+                  </div>
+                </div>
+              </td>
+            </tr>
           <% }) %>
         </tbody>
       </table>
     </div>
   </main>
+
+  <script>
+    function toggleRentalDetail(id, btn) {
+      const detailRow = document.getElementById('detail-' + id);
+      const summaryRow = document.getElementById('row-' + id);
+      if (!detailRow) return;
+
+      const isOpening = detailRow.hidden;
+
+      // Close any other open detail row
+      document.querySelectorAll('.booking-detail-row').forEach((row) => {
+        row.hidden = true;
+      });
+      document.querySelectorAll('.booking-summary-row').forEach((row) => {
+        row.classList.remove('is-expanded');
+      });
+      document.querySelectorAll('.booking-summary-row .btn-outline').forEach((b) => {
+        b.setAttribute('aria-expanded', 'false');
+        b.textContent = 'Details';
+      });
+
+      if (isOpening) {
+        detailRow.hidden = false;
+        if (summaryRow) summaryRow.classList.add('is-expanded');
+        btn.setAttribute('aria-expanded', 'true');
+        btn.textContent = 'Hide';
+      }
+    }
+  </script>
 </body>
 </html>

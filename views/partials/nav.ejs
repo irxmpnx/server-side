@@ -1,5 +1,5 @@
 <header class="navbar">
-    <a href="/"><img src="/images/logo.svg" class="nav-logo" alt="Logo" /></a>
+    <a href="/markets"><img src="/images/logo.svg" class="nav-logo" alt="Logo" /></a>
     <nav class="nav-links">
         <a href="/#about">About</a>
         <a href="/#faq">FAQ</a>
@@ -27,7 +27,7 @@
 
     <nav class="sidebar-nav" aria-label="Account">
         <% if (currentUser.role === 'owner_market') { %>
-        <a href="/myMarkets">My Markets</a>
+        <a href="/owner/markets">My Markets</a>
         <% } else { %>
         <a href="/rent/step1">Rent a spot</a>
         <a href="/myRental">My Rental</a>
