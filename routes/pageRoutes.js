@@ -20,6 +20,7 @@ router.get('/welcome', requireAuth, (req, res) => {
 // Tenant's rental history
 router.get('/myRental', requireAuth, requireRole('tenant'), myRentalController.getMyRental);
 router.post('/myRental/:id/cancel', requireAuth, requireRole('tenant'), myRentalController.cancelRental);
+router.get('/myRental/:id/pay', requireAuth, requireRole('tenant'), myRentalController.payRental);
 router.post('/myRental/:id/check-in', requireAuth, requireRole('tenant'), myRentalController.checkInRental);
 
 // Tenant favorites

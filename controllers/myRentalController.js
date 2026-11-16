@@ -42,6 +42,56 @@ exports.getMyRental = async (req, res) => {
   }
 };
 
+// Pay an existing unpaid rental: reload its data into the session and
+// send the tenant to Step 4 (payment page).
+exports.payRental = async (req, res) => {
+  try {
+    const { rows } = await client.query(
+      `SELECT r.id, r.market_id, r.spot_id, r.shop_name, r.total_price,
+              EXTRACT(EPOCH FROM (r.payment_deadline AT TIME ZONE current_setting('TimeZone'))) * 1000 AS payment_due_ms,
+              m.name AS market_name,
+              s.spot_name, s.width, s.length, s.price_per_day,
+              COALESCE(
+                ARRAY_AGG(TO_CHAR(rd.rental_date, 'YYYY-MM-DD') ORDER BY rd.rental_date)
+                  FILTER (WHERE rd.rental_date IS NOT NULL),
+                ARRAY[]::text[]
+              ) AS dates
+       FROM rentals r
+       JOIN markets m ON m.id = r.market_id
+       JOIN market_spots s ON s.id = r.spot_id
+       LEFT JOIN rental_dates rd ON rd.rental_id = r.id AND rd.is_active = TRUE
+       WHERE r.id = $1 AND r.tenant_id = $2 AND r.payment_status = 'unpaid'
+       GROUP BY r.id, m.name, s.spot_name, s.width, s.length, s.price_per_day;`,
+      [req.params.id, req.session.user.id]
+    );
+
+    if (rows.length === 0) {
+      return res.redirect('/myRental?message=not-payable');
+    }
+
+    const r = rows[0];
+    req.session.rent = {
+      rentalId: r.id,
+      marketId: r.market_id,
+      marketName: r.market_name,
+      shopName: r.shop_name,
+      dates: r.dates,
+      spotId: r.spot_id,
+      spotName: r.spot_name,
+      spotSize: `${r.width}x${r.length}`,
+      pricePerDay: Number(r.price_per_day),
+      totalPrice: Number(r.total_price),
+      // Keep the original deadline; fall back to a fresh window if none was stored.
+      paymentDueAt: r.payment_due_ms ? Math.round(Number(r.payment_due_ms)) : Date.now() + 60 * 60 * 1000,
+    };
+
+    req.session.save(() => res.redirect('/rent/step4'));
+  } catch (err) {
+    console.error('payRental error:', err);
+    res.redirect('/myRental?message=error');
+  }
+};
+
 // A tenant may cancel their own unpaid rental. Its dates are released too.
 exports.cancelRental = async (req, res) => {
   try {

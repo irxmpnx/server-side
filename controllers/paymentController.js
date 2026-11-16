@@ -116,6 +116,7 @@ exports.getStep4 = async (req, res) => {
       remainingSeconds,
       expired: remainingSeconds === 0,
       error,
+      backUrl: rent.rentalId ? '/myRental?status=unpaid' : '/rent/step3',
     });
   } catch (err) {
     console.error('getStep4 error:', err);

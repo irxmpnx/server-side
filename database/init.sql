@@ -117,7 +117,20 @@ CREATE TABLE IF NOT EXISTS shops (
 
 CREATE INDEX IF NOT EXISTS idx_shops_seller_id ON shops (seller_id);
 
--- 9. EXPRESS SESSION STORE
+-- 9. USER FAVORITES
+CREATE TABLE IF NOT EXISTS user_favorites (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  market_id INTEGER NOT NULL REFERENCES markets(id) ON DELETE CASCADE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (user_id, market_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_favorites_user_id
+  ON user_favorites(user_id);
+
+
+-- 10. EXPRESS SESSION STORE
 CREATE TABLE IF NOT EXISTS "session" (
   "sid" varchar NOT NULL COLLATE "default",
   "sess" json NOT NULL,

@@ -60,7 +60,7 @@
             </div>
 
             <div class="rent-actions">
-                <a href="/rent/step3" class="btn-back">Back</a>
+                <a href="<%= locals.backUrl || '/rent/step3' %>" class="btn-back">Back</a>
                 <button type="submit" class="btn-next" id="btn-next" <%= isExpired ? 'disabled' : '' %>>Next</button>
             </div>
         </form>
