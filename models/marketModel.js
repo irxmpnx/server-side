@@ -306,10 +306,12 @@ const MarketModel = {
     }
   },
 
-  async getMarketInsightById(marketId) {
+  async getMarketInsightById(marketId, viewerUserId = null) {
     const marketRes = await client.query(
-      `SELECT * FROM markets WHERE id = $1 AND is_verified = TRUE;`,
-      [marketId]
+      `SELECT * FROM markets
+       WHERE id = $1
+         AND (is_verified = TRUE OR owner_id = $2);`,
+      [marketId, viewerUserId]
     );
     if (marketRes.rows.length === 0) return null;
     const market = marketRes.rows[0];
@@ -324,7 +326,6 @@ const MarketModel = {
       [marketId]
     );
 
-    // Fetch all active spots and the latest approved shop name for each spot
     const spotsRes = await client.query(
       `SELECT s.id, s.spot_name, s.width, s.length, s.price_per_day, s.pos_x, s.pos_y,
               EXISTS (
