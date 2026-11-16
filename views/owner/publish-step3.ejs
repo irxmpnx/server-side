@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add a Market - Step 3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="wizard-container">
+    <h1 class="wizard-title">Add a market</h1>
+
+    <!-- Single Continuous Line Stepper -->
+    <div class="stepper" style="--progress: 66.6%;">
+      <div class="step done"><span class="dot"></span><small>Market details</small></div>
+      <div class="step done"><span class="dot"></span><small>Operating day</small></div>
+      <div class="step active"><span class="dot"></span><small>Market map</small></div>
+      <div class="step"><span class="dot"></span><small>Verify</small></div>
+    </div>
+
+    <form action="/owner/markets/new/step-3" method="POST" id="mapForm" class="wizard-form">
+      <h2 class="section-bar-title">Market map</h2>
+
+      <div class="area-inputs">
+        <span>Market area: width</span>
+        <input type="number" id="areaWidth" name="area_width" min="10" max="500" value="<%= draft.area?.width || 200 %>" class="sm-num" oninput="updateCanvasRatio()" />
+        <span>meter &times; length</span>
+        <input type="number" id="areaLength" name="area_length" min="10" max="500" value="<%= draft.area?.length || 100 %>" class="sm-num" oninput="updateCanvasRatio()" />
+        <span>meter</span>
+      </div>
+
+      <div class="map-toolbar">
+        <button type="button" class="btn-yellow" onclick="addSpot()">+ Add a spot</button>
+        <button type="button" class="btn-outline" onclick="addElement('entry', 'Entry')">+ Add an entry</button>
+        <select id="facilityType" class="toolbar-select">
+          <option value="Toilet">Toilet</option>
+          <option value="Parking">Parking</option>
+          <option value="Garbage">Garbage</option>
+        </select>
+        <button type="button" class="btn-outline" onclick="addFacility()">+ Add facilities</button>
+      </div>
+
+      <div class="legend-row">
+        <span class="snap-hint" id="scaleReadout">Scale: 1 grid = 1m &bull; Drag to move (snaps to grid) &bull; Click spot to edit</span>
+        <div class="legend-boxes">
+          <span><i class="box-icon avail"></i> Available</span>
+          <span><i class="box-icon rented"></i> Rented</span>
+        </div>
+      </div>
+
+      <!-- Proportional Snap-to-Grid Canvas -->
+      <div class="map-canvas-wrapper">
+        <div class="map-canvas" id="mapCanvas">
+          <span class="map-watermark">Market Map Layout</span>
+        </div>
+      </div>
+
+      <!-- Spot Editor Inputs -->
+      <div class="grid-4" style="margin-top:20px;">
+        <div class="form-group">
+          <label>Spot name</label>
+          <input type="text" id="spotName" value="A01" oninput="updateSelectedSpot()" />
+        </div>
+        <div class="form-group">
+          <label>Width (meter)</label>
+          <input type="number" step="0.5" min="1" id="spotWidth" value="3" oninput="updateSelectedSpot()" />
+        </div>
+        <div class="form-group">
+          <label>Length (meter)</label>
+          <input type="number" step="0.5" min="1" id="spotLength" value="2.5" oninput="updateSelectedSpot()" />
+        </div>
+        <div class="form-group">
+          <label>Price / Day (baht)</label>
+          <input type="number" id="spotPrice" value="1500" oninput="updateSelectedSpot()" />
+        </div>
+      </div>
+
+      <input type="hidden" name="map_data" id="mapDataInput" />
+
+      <div class="wizard-footer between">
+        <a href="/owner/markets/new/step-2" class="btn-outline">Back</a>
+        <button type="submit" class="btn-yellow">Next</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const GRID_SIZE = 20; // 20px snap increment
+    const MAX_CANVAS_WIDTH = 720; // Matches .wizard-form max-width
+
+    const state = {
+      spots: <%- JSON.stringify(draft.spots || []) %>,
+      elements: <%- JSON.stringify(draft.elements || []) %>
+    };
+
+    let selectedSpotIndex = null;
+    let pxPerMeter = 18;
+    const canvas = document.getElementById('mapCanvas');
+
+    function snap(val) {
+      return Math.round(val / GRID_SIZE) * GRID_SIZE;
+    }
+
+    // Scales the canvas dimensions proportionally to area_width x area_length
+    function updateCanvasRatio() {
+      const areaW = Math.max(10, Number(document.getElementById('areaWidth').value) || 200);
+      const areaL = Math.max(10, Number(document.getElementById('areaLength').value) || 100);
+
+      // 200m x 100m fits at 3.6px/m -> 720px wide x 360px tall (exact 2:1 ratio)
+      const rawScale = Math.min(MAX_CANVAS_WIDTH / areaW, 460 / areaL);
+      pxPerMeter = Math.max(3.6, rawScale);
+
+      const canvasW = Math.max(240, snap(areaW * pxPerMeter));
+      const canvasH = Math.max(200, snap(areaL * pxPerMeter));
+
+      canvas.style.width = canvasW + 'px';
+      canvas.style.height = canvasH + 'px';
+
+      const metersPerGrid = (GRID_SIZE / pxPerMeter).toFixed(1).replace(/\.0$/, '');
+      document.getElementById('scaleReadout').textContent =
+        `Area: ${areaW}m × ${areaL}m (1 grid = ${metersPerGrid}m) • Drag to snap • Click spot to edit`;
+
+      renderCanvas();
+    }
+
+    // Computes pixel width & height of each spot based on its meter ratio
+    function getSpotPixelSize(widthMeters, lengthMeters) {
+      // Maintain exact width:length ratio while keeping small booths readable on large maps
+      const ratio = widthMeters / Math.max(0.5, lengthMeters);
+      let w = Math.round(widthMeters * pxPerMeter);
+      let h = Math.round(lengthMeters * pxPerMeter);
+
+      const minBox = 44;
+      if (w < minBox && h < minBox) {
+        if (ratio >= 1) {
+          w = minBox;
+          h = Math.max(32, Math.round(minBox / ratio));
+        } else {
+          h = minBox;
+          w = Math.max(32, Math.round(minBox * ratio));
+        }
+      }
+      return { w, h };
+    }
+
+    function makeDraggable(el, itemObj, onSelect) {
+      let startX = 0, startY = 0, origX = 0, origY = 0, moved = false;
+
+      el.addEventListener('pointerdown', (e) => {
+        if (e.target.classList.contains('remove-badge')) return;
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+
+        startX = e.clientX;
+        startY = e.clientY;
+        origX = Number(itemObj.pos_x) || 0;
+        origY = Number(itemObj.pos_y) || 0;
+        moved = false;
+        el.classList.add('is-dragging');
+
+        const onPointerMove = (moveEvt) => {
+          const dx = moveEvt.clientX - startX;
+          const dy = moveEvt.clientY - startY;
+          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+
+          const maxX = Math.max(0, canvas.clientWidth - el.offsetWidth);
+          const maxY = Math.max(0, canvas.clientHeight - el.offsetHeight);
+
+          const snappedX = Math.max(0, Math.min(snap(origX + dx), snap(maxX)));
+          const snappedY = Math.max(0, Math.min(snap(origY + dy), snap(maxY)));
+
+          itemObj.pos_x = snappedX;
+          itemObj.pos_y = snappedY;
+          el.style.left = snappedX + 'px';
+          el.style.top = snappedY + 'px';
+        };
+
+        const onPointerUp = (upEvt) => {
+          el.releasePointerCapture(upEvt.pointerId);
+          el.classList.remove('is-dragging');
+          el.removeEventListener('pointermove', onPointerMove);
+          el.removeEventListener('pointerup', onPointerUp);
+
+          if (!moved && onSelect) onSelect();
+        };
+
+        el.addEventListener('pointermove', onPointerMove);
+        el.addEventListener('pointerup', onPointerUp);
+      });
+    }
+
+    function selectSpot(idx) {
+      selectedSpotIndex = idx;
+      const s = state.spots[idx];
+      if (!s) return;
+
+      document.getElementById('spotName').value = s.spot_name;
+      document.getElementById('spotWidth').value = s.width;
+      document.getElementById('spotLength').value = s.length;
+      document.getElementById('spotPrice').value = s.price_per_day;
+      renderCanvas();
+    }
+
+    function updateSelectedSpot() {
+      if (selectedSpotIndex === null || !state.spots[selectedSpotIndex]) return;
+      const s = state.spots[selectedSpotIndex];
+      s.spot_name = document.getElementById('spotName').value || s.spot_name;
+      s.width = Math.max(0.5, Number(document.getElementById('spotWidth').value) || 3);
+      s.length = Math.max(0.5, Number(document.getElementById('spotLength').value) || 2.5);
+      s.price_per_day = Number(document.getElementById('spotPrice').value) || 0;
+      renderCanvas();
+    }
+
+    function renderCanvas() {
+      canvas.innerHTML = '<span class="map-watermark">Market Map Layout</span>';
+
+      state.spots.forEach((s, idx) => {
+        const { w, h } = getSpotPixelSize(Number(s.width) || 3, Number(s.length) || 2.5);
+
+        // Keep inside canvas if owner shrinks area_width / area_length
+        const maxX = Math.max(0, canvas.clientWidth - w);
+        const maxY = Math.max(0, canvas.clientHeight - h);
+        s.pos_x = Math.min(Number(s.pos_x) || 0, snap(maxX));
+        s.pos_y = Math.min(Number(s.pos_y) || 0, snap(maxY));
+
+        const div = document.createElement('div');
+        div.className = 'map-spot-item' + (selectedSpotIndex === idx ? ' is-selected' : '');
+        div.style.width = w + 'px';
+        div.style.height = h + 'px';
+        div.style.left = s.pos_x + 'px';
+        div.style.top = s.pos_y + 'px';
+
+        div.innerHTML = `
+          <button type="button" class="remove-badge" title="Remove spot">&times;</button>
+          <strong>${s.spot_name}</strong>
+          <small>${s.width}&times;${s.length}m</small>
+        `;
+
+        div.querySelector('.remove-badge').onclick = (e) => {
+          e.stopPropagation();
+          state.spots.splice(idx, 1);
+          if (selectedSpotIndex === idx) selectedSpotIndex = null;
+          renderCanvas();
+        };
+
+        makeDraggable(div, s, () => selectSpot(idx));
+        canvas.appendChild(div);
+      });
+
+      state.elements.forEach((el, idx) => {
+        const div = document.createElement('div');
+        div.className = el.element_type === 'entry' ? 'map-entry-item' : 'map-facility-item';
+        div.style.left = (Number(el.pos_x) || 0) + 'px';
+        div.style.top = (Number(el.pos_y) || 0) + 'px';
+
+        div.innerHTML = `
+          <button type="button" class="remove-badge" title="Remove">&times;</button>
+          <span>${el.label}</span>
+        `;
+
+        div.querySelector('.remove-badge').onclick = (e) => {
+          e.stopPropagation();
+          state.elements.splice(idx, 1);
+          renderCanvas();
+        };
+
+        makeDraggable(div, el, null);
+        canvas.appendChild(div);
+      });
+    }
+
+    function addSpot() {
+      selectedSpotIndex = null;
+      const nameInput = document.getElementById('spotName');
+      const count = state.spots.length;
+      const wMeters = Number(document.getElementById('spotWidth').value) || 3;
+      const lMeters = Number(document.getElementById('spotLength').value) || 2.5;
+      const { w, h } = getSpotPixelSize(wMeters, lMeters);
+
+      const cols = Math.max(1, Math.floor((canvas.clientWidth - 20) / (w + 20)));
+      const defaultX = snap((count % cols) * (w + 20) + 20);
+      const defaultY = snap(Math.floor(count / cols) * (h + 20) + 20);
+
+      state.spots.push({
+        spot_name: nameInput.value || `A0${count + 1}`,
+        width: wMeters,
+        length: lMeters,
+        price_per_day: Number(document.getElementById('spotPrice').value) || 1500,
+        pos_x: defaultX,
+        pos_y: defaultY
+      });
+
+      const nextNum = String(count + 2).padStart(2, '0');
+      nameInput.value = `A${nextNum}`;
+      renderCanvas();
+    }
+
+    function addElement(type, label) {
+      const centerX = snap(Math.max(0, (canvas.clientWidth - 100) / 2));
+      const bottomY = snap(Math.max(0, canvas.clientHeight - 60));
+
+      state.elements.push({
+        element_type: type,
+        label,
+        pos_x: centerX,
+        pos_y: bottomY
+      });
+      renderCanvas();
+    }
+
+    function addFacility() {
+      const val = document.getElementById('facilityType').value;
+      addElement('facility', val);
+    }
+
+    document.getElementById('mapForm').addEventListener('submit', () => {
+      document.getElementById('mapDataInput').value = JSON.stringify(state);
+    });
+
+    updateCanvasRatio();
+  </script>
+</body>
+</html>

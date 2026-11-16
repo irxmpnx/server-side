@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add a Market - Step 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="wizard-container">
+    <h1 class="wizard-title">Add a market</h1>
+
+<div class="stepper" style="--progress: 33.3%;">
+  <div class="step done"><span class="dot"></span><small>Market details</small></div>
+  <div class="step active"><span class="dot"></span><small>Operating day</small></div>
+  <div class="step"><span class="dot"></span><small>Market map</small></div>
+  <div class="step"><span class="dot"></span><small>Verify</small></div>
+</div>
+
+    <form action="/owner/markets/new/step-2" method="POST" class="wizard-form">
+      <h2 class="section-bar-title">Operating day</h2>
+
+      <% const days = [
+        { idx: 1, name: 'Monday' },
+        { idx: 2, name: 'Tuesday' },
+        { idx: 3, name: 'Wednesday' },
+        { idx: 4, name: 'Thursday' },
+        { idx: 5, name: 'Friday' },
+        { idx: 6, name: 'Saturday' },
+        { idx: 0, name: 'Sunday' }
+      ]; %>
+
+      <div class="days-list">
+        <% days.forEach(d => {
+          const saved = operatingDays.find(od => od.day_of_week === d.idx);
+        %>
+          <div class="day-row">
+            <label class="day-check">
+              <input type="checkbox" name="days" value="<%= d.idx %>" <%= saved ? 'checked' : '' %> />
+              <span><%= d.name %></span>
+            </label>
+            <input type="time" name="open_<%= d.idx %>" value="<%= saved ? saved.open_time : '08:00' %>" class="time-input" />
+            <span class="to-label">To</span>
+            <input type="time" name="close_<%= d.idx %>" value="<%= saved ? saved.close_time : '14:00' %>" class="time-input" />
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="wizard-footer between">
+        <a href="/owner/markets/new/step-1" class="btn-outline">Back</a>
+        <button type="submit" class="btn-yellow">Next</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

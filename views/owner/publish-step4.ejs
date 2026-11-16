@@ -1,0 +1,60 @@
+<!-- views/owner/publish-step4.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Market - Step 4</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="wizard-container">
+    <h1 class="wizard-title">Add a market</h1>
+
+    <div class="stepper" style="--progress: 100%;">
+    <div class="step done"><span class="dot"></span><small>Market details</small></div>
+    <div class="step done"><span class="dot"></span><small>Operating day</small></div>
+    <div class="step done"><span class="dot"></span><small>Market map</small></div>
+    <div class="step active"><span class="dot"></span><small>Verify</small></div>
+    </div>
+
+    <div class="wizard-form">
+      <h2 class="section-bar-title">Verify</h2>
+
+      <div class="verify-card">
+        <div class="verify-row">
+          <span>Market:</span>
+          <strong><%= draft.details.name %></strong>
+        </div>
+        <div class="verify-row">
+          <span>Location:</span>
+          <strong><%= draft.details.location %></strong>
+        </div>
+        <div class="verify-row">
+          <span>Operating day:</span>
+          <strong>
+            <%= draft.operatingDays.map(d => `${d.day_name} ${d.open_time}-${d.close_time}`).join(', ') || 'None' %>
+          </strong>
+        </div>
+        <div class="verify-row">
+          <span>Market area:</span>
+          <strong><%= draft.area.width %> &times; <%= draft.area.length %> m</strong>
+        </div>
+        <div class="verify-row">
+          <span>Spot for rent:</span>
+          <strong><%= draft.spots.length %> spots</strong>
+        </div>
+      </div>
+
+      <form action="/owner/markets/new/publish" method="POST" class="wizard-footer between">
+        <a href="/owner/markets/new/step-3" class="btn-outline">Back</a>
+        <button type="submit" class="btn-yellow">Publish market</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
