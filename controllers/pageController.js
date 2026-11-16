@@ -2,6 +2,7 @@ const MarketModel = require('../models/marketModel');
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+
 exports.getHome = (req, res) => {
   res.render('hero', { user: req.session.user });
 };
@@ -16,7 +17,8 @@ exports.getMarketDetail = async (req, res) => {
     const marketId = Number(req.params.id);
     if (!Number.isInteger(marketId)) return res.redirect('/');
 
-    const data = await MarketModel.getMarketInsightById(marketId);
+    const viewerId = req.session.user ? req.session.user.id : null;
+    const data = await MarketModel.getMarketInsightById(marketId, viewerId);
     if (!data) return res.status(404).send('Market not found.');
 
     const { market, operatingDays, spots, elements } = data;
@@ -48,4 +50,5 @@ exports.getMarketDetail = async (req, res) => {
     console.error('getMarketDetail error:', err);
     res.redirect('/');
   }
+
 };

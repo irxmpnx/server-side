@@ -27,35 +27,36 @@ exports.startNewMarket = (req, res) => {
 exports.getEditMarket = async (req, res) => {
   try {
     const marketId = Number(req.params.id);
-    const data = await MarketModel.getFullMarketForEdit(marketId, req.session.user.id);
-    if (!data) return res.redirect('/owner/markets');
+    const ownerId = req.session.user.id;
 
-    const { market, operatingDays, spots, elements } = data;
+    const fullData = await MarketModel.getFullMarketForEdit(marketId, ownerId);
+    if (!fullData) {
+      return res.status(403).redirect('/owner/markets');
+    }
 
     req.session.marketDraft = {
-      editMarketId: market.id,
+      editingMarketId: marketId,
       details: {
-        name: market.name,
-        genre: market.genre,
-        location: market.location,
-        phone_number: market.phone_number,
-        description: market.description || '',
-        image_urls: market.image_urls || [market.cover_image_url || '/images/m1.png'],
-        main_image_index: Number(market.main_image_index) || 0,
-        bank_name: market.bank_name || '',
-        bank_account_number: market.bank_account_number || '',
-        qr_code_url: market.qr_code_url || '',
+        name: fullData.market.name,
+        genre: fullData.market.genre,
+        location: fullData.market.location,
+        phone_number: fullData.market.phone_number,
+        description: fullData.market.description,
+        image_urls: fullData.market.image_urls || [fullData.market.cover_image_url],
+        bank_name: fullData.market.bank_name,
+        bank_account_number: fullData.market.bank_account_number,
+        qr_code_url: fullData.market.qr_code_url,
       },
-      operatingDays,
+      operatingDays: fullData.operatingDays,
       area: {
-        width: Number(market.area_width) || 200,
-        length: Number(market.area_length) || 100,
+        width: fullData.market.area_width,
+        length: fullData.market.area_length,
       },
-      spots,
-      elements,
+      spots: fullData.spots,
+      elements: fullData.elements,
     };
 
-    req.session.save(() => res.redirect('/owner/markets/new/step-1'));
+    res.redirect('/owner/markets/new/step-1');
   } catch (err) {
     console.error('getEditMarket error:', err);
     res.redirect('/owner/markets');
@@ -64,17 +65,12 @@ exports.getEditMarket = async (req, res) => {
 
 // STEP 1: Market Details + Multiple Images
 exports.getPublishStep1 = (req, res) => {
-  if (!req.session.marketDraft) {
-    req.session.marketDraft = {
-      editMarketId: null,
-      details: {},
-      operatingDays: [],
-      area: { width: 200, length: 100 },
-      spots: [],
-      elements: [],
-    };
+  if (req.query.fresh === '1') {
+    delete req.session.marketDraft;
   }
-  res.render('owner/publish-step1', { draft: req.session.marketDraft.details });
+
+  const draft = req.session.marketDraft?.details || {};
+  res.render('owner/publish-step1', { draft });
 };
 
 exports.postPublishStep1 = (req, res) => {
@@ -285,5 +281,40 @@ exports.postDeleteMarket = async (req, res) => {
   } catch (err) {
     console.error('postDeleteMarket error:', err);
     res.status(500).send('Error deleting market.');
+  }
+};
+
+exports.postPublishVerify = async (req, res) => {
+  try {
+    const draft = req.session.marketDraft;
+    if (!draft || !draft.details) {
+      return res.redirect('/owner/markets/new/step-1');
+    }
+
+    const ownerId = req.session.user.id;
+    let marketId;
+
+    if (draft.editingMarketId) {
+      marketId = await MarketModel.updateFullMarket(draft.editingMarketId, ownerId, draft);
+    } else {
+      marketId = await MarketModel.createFullMarket({
+        ownerId,
+        details: draft.details,
+        operatingDays: draft.operatingDays || [],
+        area: draft.area || { width: 200, length: 100 },
+        spots: draft.spots || [],
+        elements: draft.elements || [],
+      });
+    }
+
+    // Wipe the wizard draft so "Add a market" is completely empty next time
+    delete req.session.marketDraft;
+
+    req.session.save(() => {
+      res.render('owner/publish-success', { marketId });
+    });
+  } catch (err) {
+    console.error('postPublishVerify error:', err);
+    res.status(500).send('Error publishing market.');
   }
 };

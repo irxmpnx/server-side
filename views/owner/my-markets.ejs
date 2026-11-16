@@ -14,7 +14,7 @@
   <main class="owner-container">
     <div class="page-header-row">
       <h1 class="owner-page-title">My Markets</h1>
-      <a href="/owner/markets/new/step-1" class="btn-yellow">Add A market</a>
+      <a href="/owner/markets/new/step-1?fresh=1" class="btn-yellow">+ Add a market</a>
     </div>
 
     <% if (markets.length === 0) { %>
@@ -42,8 +42,8 @@
           </div>
 
           <div class="market-card-actions">
-            <a href="/owner/markets/<%= market.id %>/dashboard" class="btn-outline">Dashboard</a>
-            <a href="/owner/markets/<%= market.id %>/dashboard" class="btn-outline">View details</a>
+            <a href="/markets/<%= market.id %>" class="btn-outline">View details</a>
+            <a href="/owner/markets/<%= market.id %>/dashboard" class="btn-yellow">Dashboard</a>
           </div>
         </div>
       <% }) %>

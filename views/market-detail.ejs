@@ -84,11 +84,20 @@
 
     <!-- Bottom Action Buttons -->
     <div class="insight-actions">
-      <a href="/" class="btn-insight-outline">Back to home</a>
-      <button type="button" class="btn-insight-outline" id="favBtn" onclick="toggleFavorite(this)">
-        <span class="heart-icon">♡</span> Add to favorite
-      </button>
-      <a href="/rent/step1?marketId=<%= market.id %>" class="btn-insight-yellow">Rent a spot</a>
+      <% if (currentUser && currentUser.role === 'owner_market') { %>
+        <a href="/owner/markets" class="btn-insight-outline">Back to my markets</a>
+        <% if (String(currentUser.id) === String(market.owner_id)) { %>
+          <a href="/owner/markets/<%= market.id %>/edit" class="btn-insight-yellow">Edit market</a>
+        <% } %>
+      <% } else { %>
+        <a href="/" class="btn-insight-outline">Back to home</a>
+
+        <button type="button" class="btn-insight-outline" id="favBtn" onclick="toggleFavorite(this)">
+          <span class="heart-icon">♡</span> Add to favorite
+        </button>
+
+        <a href="/rent/step1?marketId=<%= market.id %>" class="btn-insight-yellow">Rent a spot</a>
+      <% } %>
     </div>
   </main>
 
