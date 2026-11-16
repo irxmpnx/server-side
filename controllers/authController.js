@@ -4,7 +4,7 @@ const UserModel = require('../models/userModel');
 const SALT_ROUNDS = 12;
 
 exports.getSignUp = (req, res) => {
-  if (req.session.user) return res.redirect('/welcome');
+  if (req.session.user) return res.redirect('/markets');
   res.render('signup', { error: null, formData: {} });
 };
 
@@ -64,7 +64,7 @@ exports.postSignUp = async (req, res) => {
         username: newUser.username,
         role: newUser.role
       };
-      req.session.save(() => res.redirect('/welcome'));
+      req.session.save(() => res.redirect('/markets'));
     });
   } catch (err) {
     console.error('SignUp error:', err);
@@ -73,7 +73,7 @@ exports.postSignUp = async (req, res) => {
 };
 
 exports.getSignIn = (req, res) => {
-  if (req.session.user) return res.redirect('/welcome');
+  if (req.session.user) return res.redirect('/markets');
   res.render('signin', { error: null });
 };
 
@@ -105,7 +105,7 @@ exports.postSignIn = async (req, res) => {
         username: user.username,
         role: user.role
       };
-      req.session.save(() => res.redirect('/welcome'));
+      req.session.save(() => res.redirect('/markets'));
     });
   } catch (err) {
     console.error('SignIn error:', err);

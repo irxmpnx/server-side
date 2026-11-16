@@ -1,0 +1,40 @@
+<%
+  const isSuccess = locals.variant === 'success';
+  const heading = isSuccess ? 'Rental is successful' : 'Payment required';
+  const message = isSuccess
+    ? 'Thank you for your rental. You can view your rental at “My Rental”'
+    : 'Please pay within 1 hour and attach your slip to confirm. You can continue at “My Rental”';
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= heading %> - Vendoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/rent.css" />
+    <link rel="stylesheet" href="/css/rent-payment.css" />
+</head>
+
+<body>
+    <%- include('partials/nav') %>
+
+    <main class="result">
+        <div class="result-icon" aria-hidden="true">
+            <% if (isSuccess) { %>
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            <% } else { %>
+            <span class="info-glyph">i</span>
+            <% } %>
+        </div>
+        <h1 class="result-title"><%= heading %></h1>
+        <p class="result-text"><%= message %></p>
+        <a href="/markets" class="btn-home">Back to home</a>
+    </main>
+</body>
+
+</html>

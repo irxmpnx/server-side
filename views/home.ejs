@@ -1,0 +1,112 @@
+<%
+  const areaList = locals.areas || [];
+  const currentPage = locals.page || 1;
+  const pages = locals.totalPages || 1;
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Right market, Favorite spot - Vendoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600&family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/home.css" />
+    <link rel="stylesheet" href="/css/footer.css" />
+</head>
+
+<body>
+    <%- include('partials/nav') %>
+
+    <main class="home">
+        <section class="home-hero">
+            <h1 class="home-title">Right market, Favorite spot !</h1>
+            <form class="search" role="search" onsubmit="return false;">
+                <input type="search" id="market-search" placeholder="Search" aria-label="Search markets" autocomplete="off" />
+            </form>
+        </section>
+
+        <div class="filters" role="group" aria-label="Filter markets">
+            <button type="button" class="filter is-active" data-filter="all">All</button>
+            <button type="button" class="filter" data-filter="today">Open today</button>
+            <button type="button" class="filter" data-filter="daily">Open daily</button>
+            <button type="button" class="filter" data-filter="weekend">Open Sat-Sun</button>
+        </div>
+
+        <% areaList.forEach(function (area) { %>
+        <section class="area">
+            <h2 class="area-title"><%= area.name %></h2>
+            <ul class="market-grid">
+                <% area.markets.forEach(function (m) { %>
+                <li class="market-card" data-tags="<%= (m.tags || []).join(' ') %>" data-name="<%= m.name %>">
+                    <a href="/markets/<%= m.id %>">
+                        <img src="<%= m.image || '/images/market-placeholder.jpg' %>" alt="<%= m.name %>" loading="lazy" />
+                        <span class="market-name"><%= m.name %></span>
+                    </a>
+                </li>
+                <% }) %>
+            </ul>
+        </section>
+        <% }) %>
+
+        <p class="no-result" id="no-result" hidden>No markets match your search.</p>
+
+        <nav class="pager" aria-label="Pagination">
+            <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>" aria-label="Previous page">&lt;</a>
+            <% } else { %>
+            <span aria-hidden="true">&lt;</span>
+            <% } %>
+            <span><%= currentPage %> of <%= pages %></span>
+            <% if (currentPage < pages) { %>
+            <a href="?page=<%= currentPage + 1 %>" aria-label="Next page">&gt;</a>
+            <% } else { %>
+            <span aria-hidden="true">&gt;</span>
+            <% } %>
+        </nav>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        (function () {
+            var cards = document.querySelectorAll('.market-card');
+            var areas = document.querySelectorAll('.area');
+            var buttons = document.querySelectorAll('.filter');
+            var input = document.getElementById('market-search');
+            var empty = document.getElementById('no-result');
+            var active = 'all';
+
+            function apply() {
+                var q = input.value.trim().toLowerCase();
+                var shown = 0;
+                cards.forEach(function (c) {
+                    var tags = (c.dataset.tags || '').split(' ');
+                    var okTag = active === 'all' || tags.indexOf(active) !== -1;
+                    var okText = !q || c.dataset.name.toLowerCase().indexOf(q) !== -1;
+                    var ok = okTag && okText;
+                    c.hidden = !ok;
+                    if (ok) shown++;
+                });
+                areas.forEach(function (a) {
+                    a.hidden = !a.querySelector('.market-card:not([hidden])');
+                });
+                empty.hidden = shown !== 0;
+            }
+
+            buttons.forEach(function (b) {
+                b.addEventListener('click', function () {
+                    active = b.dataset.filter;
+                    buttons.forEach(function (x) { x.classList.toggle('is-active', x === b); });
+                    apply();
+                });
+            });
+            input.addEventListener('input', apply);
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,190 @@
+/* ---------- Tokens ---------- */
+:root {
+    --vd-green: #415A41;
+    --vd-blue: #6EB2F6;
+    --vd-yellow: #FFFA5B;
+    --vd-ink: #111;
+    --vd-white: #fff;
+    --font-display: 'Momo Trust Display', 'IBM Plex Sans Thai', sans-serif;
+    --font-body: 'IBM Plex Sans Thai', sans-serif;
+    --font-ui: 'Josefin Sans', 'IBM Plex Sans Thai', sans-serif;
+}
+
+/* ---------- Logo (eyes made with CSS; swap for /images/logo.svg if you have one) ---------- */
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-display);
+    color: var(--vd-blue);
+    line-height: 1;
+}
+.logo-text { font-size: 1.9rem; letter-spacing: 0.5px; }
+.logo .eye {
+    position: relative;
+    width: 0.62em;
+    height: 1em;
+    font-size: 1.9rem;
+    border: 3px solid var(--vd-ink);
+    border-radius: 50%;
+    background: var(--vd-white);
+    overflow: hidden;
+}
+.logo .eye::after {
+    content: "";
+    position: absolute;
+    right: -2px;
+    top: 22%;
+    width: 60%;
+    height: 56%;
+    background: var(--vd-ink);
+    border-radius: 50%;
+}
+.logo-lg .logo-text { font-size: 3.4rem; }
+.logo-lg .eye { font-size: 3.4rem; }
+
+/* ---------- Page ---------- */
+.home {
+    background: var(--vd-white);
+    color: var(--vd-ink);
+    font-family: var(--font-body);
+    padding: 3.5rem 1.5rem 3rem;
+}
+.home > * {
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.home-hero { text-align: center; }
+.home-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4.6vw, 3rem);
+    line-height: 1.15;
+    margin: 1rem 0 2.5rem;
+}
+
+.search { display: flex; justify-content: center; }
+.search input {
+    width: min(100%, 474px);
+    height: 44px;
+    padding: 0 1.25rem;
+    border: 1px solid var(--vd-ink);
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    background: var(--vd-white);
+}
+.search input:focus-visible {
+    outline: 3px solid var(--vd-blue);
+    outline-offset: 2px;
+}
+
+/* ---------- Filters ---------- */
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.4rem;
+    margin-top: 3.2rem;
+    margin-bottom: 2.4rem;
+    padding-left: 0.6rem;
+}
+.filter {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    color: var(--vd-ink);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 0.1rem 0.9rem;
+    cursor: pointer;
+}
+.filter.is-active {
+    background: var(--vd-blue);
+    border-color: #2f5fb3;
+}
+.filter:focus-visible {
+    outline: 3px solid var(--vd-blue);
+    outline-offset: 2px;
+}
+
+/* ---------- Areas and cards ---------- */
+.area { margin-bottom: 3.4rem; }
+.area[hidden], .market-card[hidden] { display: none; }
+.area-title {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 0 0 1rem;
+}
+
+.market-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.4rem;
+}
+.market-card a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+.market-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 6 / 5;
+    object-fit: cover;
+    border: 1px solid var(--vd-ink);
+    border-radius: 8px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+    background: #e7e7e7;
+}
+.market-name {
+    display: block;
+    margin-top: 0.6rem;
+    text-align: center;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--vd-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.market-card a:hover .market-name,
+.market-card a:focus-visible .market-name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.market-card a:focus-visible {
+    outline: 3px solid var(--vd-blue);
+    outline-offset: 3px;
+}
+
+.no-result { text-align: center; font-family: var(--font-ui); margin: 2rem auto; }
+
+/* ---------- Pagination ---------- */
+.pager {
+    display: flex;
+    justify-content: center;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+}
+.pager a { color: var(--vd-ink); text-decoration: none; }
+.pager span[aria-hidden="true"] { opacity: 0.3; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+    .market-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .home { padding-top: 2.2rem; }
+    .market-grid { grid-template-columns: 1fr; }
+    .filters { gap: 0.6rem 1rem; }
+}

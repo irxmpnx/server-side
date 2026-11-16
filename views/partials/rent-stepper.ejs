@@ -1,0 +1,14 @@
+<%
+  const stepLabels = ['Select market<br />and date', 'Select a spot', 'Confirm detail', 'Payment'];
+  const currentStep = locals.current || 1;
+%>
+<ol class="stepper" aria-label="Rental steps">
+    <% stepLabels.forEach(function (label, i) {
+         const n = i + 1;
+         const cls = n < currentStep ? 'is-done' : (n === currentStep ? 'is-current' : '');
+    %>
+    <li class="step <%= cls %>" <%- n === currentStep ? 'aria-current="step"' : '' %>>
+        <span class="dot"></span><span class="step-label"><%- label %></span>
+    </li>
+    <% }) %>
+</ol>

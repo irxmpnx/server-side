@@ -7,12 +7,38 @@
     </nav>
     <div class="nav-auth">
         <% if (currentUser) { %>
-        <a href="/welcome" class="nav-signin">Dashboard</a>
-        <form action="/logout" method="POST" style="display:inline;">
-            <button type="submit" class="nav-logout-btn">Sign out</button>
-        </form>
+        <button type="button" class="nav-signin nav-user-btn" id="sidebar-trigger"
+                aria-controls="user-sidebar" aria-expanded="false"><%= currentUser.username %></button>
         <% } else { %>
         <a href="/signin" class="nav-signin">Sign in</a>
         <% } %>
     </div>
 </header>
+
+<% if (currentUser) { %>
+<link rel="stylesheet" href="/css/sidebar.css" />
+
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<aside class="sidebar" id="user-sidebar" aria-label="User menu">
+    <div class="sidebar-head">
+        <button type="button" class="sidebar-close" id="sidebar-close" aria-label="Close menu"><%= currentUser.username %></button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Account">
+        <% if (currentUser.role === 'owner_market') { %>
+        <a href="/myMarkets">My Markets</a>
+        <% } else { %>
+        <a href="/rent/step1">Rent a spot</a>
+        <a href="/myRental">My Rental</a>
+        <a href="/myFavorite">My Favorite</a>
+        <% } %>
+    </nav>
+
+    <form action="/logout" method="POST" class="sidebar-logout">
+        <button type="submit">Log out</button>
+    </form>
+</aside>
+
+<script src="/js/sidebar.js" defer></script>
+<% } %>
