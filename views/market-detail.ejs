@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= market.name %> - Vendoo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/rent.css" />
+  <link rel="stylesheet" href="/css/market-detail.css" />
+</head>
+<body>
+  <%- include('partials/nav') %>
+
+  <main class="insight-page">
+    <!-- Top Two-Column Section: Carousel + Details -->
+    <section class="insight-body">
+      <div class="insight-gallery-col">
+        <h1 class="insight-market-title"><%= market.name %></h1>
+
+        <div class="gallery-carousel">
+          <button type="button" class="carousel-arrow" id="prevImgBtn" aria-label="Previous photo">&lt;</button>
+
+          <div class="gallery-frame">
+            <img id="galleryMainImg" src="<%= images[0] %>" alt="<%= market.name %>" />
+          </div>
+
+          <button type="button" class="carousel-arrow" id="nextImgBtn" aria-label="Next photo">&gt;</button>
+        </div>
+      </div>
+
+      <div class="insight-details-col">
+        <h2 class="details-heading">Details</h2>
+
+        <dl class="details-list">
+          <div class="detail-pair">
+            <dt>Location:</dt>
+            <dd><%= market.location || '-' %></dd>
+          </div>
+          <div class="detail-pair">
+            <dt>Operating days:</dt>
+            <dd><%= daysLabel %></dd>
+          </div>
+          <div class="detail-pair">
+            <dt>Time:</dt>
+            <dd><%= timeLabel %></dd>
+          </div>
+          <div class="detail-pair">
+            <dt>Description:</dt>
+            <dd><%= market.description || '-' %></dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- Bottom Market Map (Identical Proportional Rendering to Step 2) -->
+    <section class="spot-map-section insight-map-section">
+      <div class="spot-map-header">
+        <h2 class="section-bar-title" style="margin-bottom: 0;">Market Map Layout</h2>
+
+        <div class="spot-legend">
+          <span><i class="legend-box avail"></i> Available</span>
+          <span><i class="legend-box rented"></i> Rented</span>
+        </div>
+      </div>
+
+      <div class="tenant-map-wrapper">
+        <div class="tenant-map-canvas" id="tenantMapCanvas">
+          <span class="tenant-map-watermark">Market Map Layout</span>
+        </div>
+      </div>
+
+      <!-- Spot -> Shop Legend Line (A01 - ร้าน... | A02 - ร้าน...) -->
+      <p class="spot-shop-legend">
+        <% if (spots.length > 0) { %>
+          <%= spots.map(s => `${s.spot_name} - ${s.current_shop || 'ว่าง'}`).join(' | ') %>
+        <% } else { %>
+          No spots configured yet.
+        <% } %>
+      </p>
+    </section>
+
+    <!-- Bottom Action Buttons -->
+    <div class="insight-actions">
+      <a href="/" class="btn-insight-outline">Back to home</a>
+      <button type="button" class="btn-insight-outline" id="favBtn" onclick="toggleFavorite(this)">
+        <span class="heart-icon">♡</span> Add to favorite
+      </button>
+      <a href="/rent/step1?marketId=<%= market.id %>" class="btn-insight-yellow">Rent a spot</a>
+    </div>
+  </main>
+
+  <script>
+    // 1. Photo Carousel
+    (function () {
+      const images = <%- JSON.stringify(images) %>;
+      let currentIdx = 0;
+      const imgEl = document.getElementById('galleryMainImg');
+      const prevBtn = document.getElementById('prevImgBtn');
+      const nextBtn = document.getElementById('nextImgBtn');
+
+      if (images.length <= 1) {
+        prevBtn.style.visibility = 'hidden';
+        nextBtn.style.visibility = 'hidden';
+      }
+
+      prevBtn.addEventListener('click', () => {
+        currentIdx = (currentIdx - 1 + images.length) % images.length;
+        imgEl.src = images[currentIdx];
+      });
+
+      nextBtn.addEventListener('click', () => {
+        currentIdx = (currentIdx + 1) % images.length;
+        imgEl.src = images[currentIdx];
+      });
+    })();
+
+    function toggleFavorite(btn) {
+      const isFav = btn.classList.toggle('is-favorited');
+      btn.innerHTML = isFav
+        ? '<span class="heart-icon">♥</span> Favorited'
+        : '<span class="heart-icon">♡</span> Add to favorite';
+    }
+
+    // 2. Proportional Market Map (Exact Same Engine as Step 2)
+    (function () {
+      const GRID_SIZE = 20;
+      const MAX_CANVAS_WIDTH = 720;
+
+      const marketArea = {
+        width: Number(<%= market.area_width || 200 %>) || 200,
+        length: Number(<%= market.area_length || 100 %>) || 100
+      };
+
+      const spots = <%- JSON.stringify(spots) %>;
+      const elements = <%- JSON.stringify(elements) %>;
+      const canvas = document.getElementById('tenantMapCanvas');
+
+      function snap(val) {
+        return Math.round(val / GRID_SIZE) * GRID_SIZE;
+      }
+
+      const rawScale = Math.min(MAX_CANVAS_WIDTH / marketArea.width, 460 / marketArea.length);
+      const pxPerMeter = Math.max(3.6, rawScale);
+      const canvasW = Math.max(240, snap(marketArea.width * pxPerMeter));
+      const canvasH = Math.max(200, snap(marketArea.length * pxPerMeter));
+
+      canvas.style.width = canvasW + 'px';
+      canvas.style.height = canvasH + 'px';
+
+      function getSpotPixelSize(widthMeters, lengthMeters) {
+        const ratio = widthMeters / Math.max(0.5, lengthMeters);
+        let w = Math.round(widthMeters * pxPerMeter);
+        let h = Math.round(lengthMeters * pxPerMeter);
+
+        const minBox = 44;
+        if (w < minBox && h < minBox) {
+          if (ratio >= 1) {
+            w = minBox;
+            h = Math.max(32, Math.round(minBox / ratio));
+          } else {
+            h = minBox;
+            w = Math.max(32, Math.round(minBox * ratio));
+          }
+        }
+        return { w, h };
+      }
+
+      canvas.innerHTML = '<span class="tenant-map-watermark">Market Map Layout</span>';
+
+      spots.forEach((s) => {
+        const { w, h } = getSpotPixelSize(Number(s.width) || 3, Number(s.length) || 2.5);
+        const isBooked = Boolean(s.is_booked);
+        const box = document.createElement('div');
+        box.className = 't-spot-item is-preview' + (isBooked ? ' is-booked' : '');
+        box.style.width = w + 'px';
+        box.style.height = h + 'px';
+        box.style.left = (Number(s.pos_x) || 0) + 'px';
+        box.style.top = (Number(s.pos_y) || 0) + 'px';
+        box.title = s.current_shop ? `${s.spot_name} - ${s.current_shop}` : s.spot_name;
+
+        box.innerHTML = `
+          <strong>${s.spot_name}</strong>
+          <small>${s.width}&times;${s.length}m</small>
+        `;
+        canvas.appendChild(box);
+      });
+
+      elements.forEach((el) => {
+        const div = document.createElement('div');
+        div.className = el.element_type === 'entry' ? 't-entry-item' : 't-facility-item';
+        div.style.left = (Number(el.pos_x) || 0) + 'px';
+        div.style.top = (Number(el.pos_y) || 0) + 'px';
+        div.textContent = el.label;
+        canvas.appendChild(div);
+      });
+    })();
+  </script>
+</body>
+</html>

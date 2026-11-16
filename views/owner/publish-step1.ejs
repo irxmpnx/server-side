@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add a Market - Step 1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="wizard-container">
+    <h1 class="wizard-title"><%= draft.name ? 'Edit market' : 'Add a market' %></h1>
+
+    <!-- Single Continuous Line Behind Stepper Circles -->
+    <div class="stepper" style="--progress: 0%;">
+      <div class="step active"><span class="dot"></span><small>Market details</small></div>
+      <div class="step"><span class="dot"></span><small>Operating day</small></div>
+      <div class="step"><span class="dot"></span><small>Market map</small></div>
+      <div class="step"><span class="dot"></span><small>Verify</small></div>
+    </div>
+
+    <form action="/owner/markets/new/step-1" method="POST" enctype="multipart/form-data" class="wizard-form">
+      <h2 class="section-bar-title">Market details</h2>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Market name</label>
+          <input type="text" name="name" placeholder="e.g. Central Night Market" value="<%= draft.name || '' %>" required />
+        </div>
+        <div class="form-group">
+          <label>Genre</label>
+          <select name="genre" required>
+            <option value="">Select genre</option>
+            <option value="Night Market" <%= draft.genre === 'Night Market' ? 'selected' : '' %>>Night Market</option>
+            <option value="Flea Market" <%= draft.genre === 'Flea Market' ? 'selected' : '' %>>Flea Market</option>
+            <option value="Food Market" <%= draft.genre === 'Food Market' ? 'selected' : '' %>>Food Market</option>
+            <option value="Community Market" <%= draft.genre === 'Community Market' ? 'selected' : '' %>>Community Market</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" name="location" placeholder="Street, District, City" value="<%= draft.location || '' %>" required />
+        </div>
+        <div class="form-group">
+          <label>Phone number</label>
+          <input type="tel" name="phone_number" placeholder="08xxxxxxxx" value="<%= draft.phone_number || '' %>" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" rows="4" placeholder="Describe your market, rules, or highlights..."><%= draft.description || '' %></textarea>
+      </div>
+
+      <!-- Multiple File Upload + Main Cover Selector -->
+      <div class="form-group">
+        <label>Market Images (Up to 10 photos — click any photo to set as Main Cover)</label>
+
+        <input
+          type="file"
+          id="marketImagesInput"
+          name="market_images"
+          accept="image/png,image/jpeg,image/webp"
+          multiple
+          hidden
+        />
+        <input
+          type="hidden"
+          id="keptImagesInput"
+          name="kept_images"
+          value='<%= JSON.stringify(draft.image_urls || []) %>'
+        />
+        <input
+          type="hidden"
+          id="mainImageIndexInput"
+          name="main_image_index"
+          value="0"
+        />
+
+        <button
+          type="button"
+          class="btn-outline"
+          onclick="document.getElementById('marketImagesInput').click()"
+        >
+          + Add Photos
+        </button>
+
+        <div id="imagePreviewGrid" class="image-preview-grid"></div>
+      </div>
+
+      <h2 class="section-bar-title" style="margin-top: 32px;">Payment account details</h2>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Bank name</label>
+          <select name="bank_name" required>
+            <option value="">Select bank</option>
+            <option value="Kasikornbank (KBank)" <%= draft.bank_name === 'Kasikornbank (KBank)' ? 'selected' : '' %>>Kasikornbank (KBank)</option>
+            <option value="SCB" <%= draft.bank_name === 'SCB' ? 'selected' : '' %>>SCB</option>
+            <option value="Bangkok Bank" <%= draft.bank_name === 'Bangkok Bank' ? 'selected' : '' %>>Bangkok Bank</option>
+            <option value="Krungthai Bank" <%= draft.bank_name === 'Krungthai Bank' ? 'selected' : '' %>>Krungthai Bank</option>
+            <option value="PromptPay" <%= draft.bank_name === 'PromptPay' ? 'selected' : '' %>>PromptPay</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bank account / PromptPay number</label>
+          <input type="text" name="bank_account_number" placeholder="xxx-x-xxxxx-x" value="<%= draft.bank_account_number || '' %>" required />
+        </div>
+      </div>
+
+      <div class="wizard-footer end">
+        <button type="submit" class="btn-yellow">Next</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    (function () {
+      const fileInput = document.getElementById('marketImagesInput');
+      const keptInput = document.getElementById('keptImagesInput');
+      const mainIndexInput = document.getElementById('mainImageIndexInput');
+      const previewGrid = document.getElementById('imagePreviewGrid');
+
+      const dt = new DataTransfer();
+      let keptUrls = [];
+      try {
+        keptUrls = JSON.parse(keptInput.value || '[]');
+      } catch (e) {
+        keptUrls = [];
+      }
+      let mainIndex = 0;
+
+      function syncInputs() {
+        fileInput.files = dt.files;
+        keptInput.value = JSON.stringify(keptUrls);
+        mainIndexInput.value = String(mainIndex);
+      }
+
+      function appendCard(src, idx, onRemove) {
+        const isMain = idx === mainIndex;
+        const card = document.createElement('div');
+        card.className = 'preview-card' + (isMain ? ' is-main' : '');
+        card.style.position = 'relative';
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'Preview ' + (idx + 1);
+        card.appendChild(img);
+
+        const badge = document.createElement('span');
+        badge.className = 'main-badge';
+        badge.textContent = isMain ? 'Main Cover' : 'Set as Main';
+        card.appendChild(badge);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.textContent = '×';
+        removeBtn.title = 'Remove photo';
+        removeBtn.style.cssText =
+          'position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%; border:1.5px solid #222; background:#fff; color:#111; font-weight:700; line-height:1; cursor:pointer; z-index:2;';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          onRemove();
+        };
+        card.appendChild(removeBtn);
+
+        card.onclick = () => {
+          mainIndex = idx;
+          renderPreviews();
+        };
+
+        previewGrid.appendChild(card);
+      }
+
+      function renderPreviews() {
+        previewGrid.innerHTML = '';
+        const totalCount = keptUrls.length + dt.files.length;
+        if (mainIndex >= totalCount) mainIndex = 0;
+        syncInputs();
+
+        // 1. Existing saved URLs (from Edit mode or returning from Step 2)
+        keptUrls.forEach((url, idx) => {
+          appendCard(url, idx, () => {
+            keptUrls.splice(idx, 1);
+            if (mainIndex === idx) mainIndex = 0;
+            else if (mainIndex > idx) mainIndex -= 1;
+            renderPreviews();
+          });
+        });
+
+        // 2. Newly added File objects accumulated across clicks
+        Array.from(dt.files).forEach((file, fileIdx) => {
+          const globalIdx = keptUrls.length + fileIdx;
+          const objectUrl = URL.createObjectURL(file);
+          appendCard(objectUrl, globalIdx, () => {
+            const nextDt = new DataTransfer();
+            Array.from(dt.files).forEach((f, i) => {
+              if (i !== fileIdx) nextDt.items.add(f);
+            });
+            dt.items.clear();
+            Array.from(nextDt.files).forEach((f) => dt.items.add(f));
+
+            if (mainIndex === globalIdx) mainIndex = 0;
+            else if (mainIndex > globalIdx) mainIndex -= 1;
+            renderPreviews();
+          });
+        });
+      }
+
+      fileInput.addEventListener('change', () => {
+        for (const file of fileInput.files) {
+          if (keptUrls.length + dt.files.length >= 10) break;
+          const alreadyAdded = Array.from(dt.files).some(
+            (f) => f.name === file.name && f.size === file.size
+          );
+          if (!alreadyAdded) {
+            dt.items.add(file);
+          }
+        }
+        renderPreviews();
+      });
+
+      renderPreviews();
+    })();
+  </script>
+</body>
+</html>

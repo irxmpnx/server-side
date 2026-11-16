@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= market.name %> Dashboard - Vendoo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="owner-container">
+    <div class="dash-top-row">
+      <div>
+        <div class="dash-title-group">
+          <h1 class="owner-page-title"><%= market.name %></h1>
+          <span class="badge-open <%= market.is_open ? 'open' : 'closed' %>">
+            <%= market.is_open ? 'Open' : 'Closed' %>
+          </span>
+        </div>
+        <p class="dash-subtitle"><%= market.genre %> - <%= market.location %></p>
+      </div>
+
+      <div class="dash-top-actions">
+        <a href="/owner/markets" class="btn-outline">&lt; All markets</a>
+        <a href="/owner/markets/<%= market.id %>/edit" class="btn-outline">Edit details</a>
+
+        <form action="/owner/markets/<%= market.id %>/toggle-status" method="POST" style="display:inline;">
+          <input type="hidden" name="redirect_to" value="/owner/markets/<%= market.id %>/dashboard" />
+          <button type="submit" class="btn-outline">
+            <%= market.is_open ? 'Close market' : 'Open market' %>
+          </button>
+        </form>
+
+        <form
+          action="/owner/markets/<%= market.id %>/delete"
+          method="POST"
+          style="display:inline;"
+          onsubmit="return confirm('Delete <%= market.name %> and all its spots/bookings? This cannot be undone.');"
+        >
+          <button type="submit" class="btn-outline btn-delete-market">Delete</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Date Filter -->
+    <form method="GET" action="/owner/markets/<%= market.id %>/dashboard" class="date-filter-form">
+      <label class="date-box">
+        <span>Date:</span>
+        <input type="date" name="date" value="<%= filterDate %>" onchange="this.form.submit()" />
+      </label>
+    </form>
+
+    <!-- 4 KPI Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Rental spot</span>
+        <strong class="stat-value"><%= stats.totalSpots %></strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Available</span>
+        <strong class="stat-value"><%= stats.available %></strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Rented</span>
+        <strong class="stat-value"><%= stats.rented %></strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Total rent</span>
+        <strong class="stat-value">฿<%= stats.totalRent %></strong>
+      </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="table-wrapper">
+      <table class="bookings-table">
+        <thead>
+          <tr>
+            <th>Tenant</th>
+            <th>Spot</th>
+            <th>Date</th>
+            <th>Price</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (rentals.length === 0) { %>
+            <tr>
+              <td colspan="7" style="text-align:center; padding: 28px; color:#888;">No bookings found.</td>
+            </tr>
+          <% } %>
+
+          <% rentals.forEach(r => { %>
+            <tr id="row-<%= r.id %>" class="booking-summary-row">
+              <td><%= r.first_name %> <%= r.last_name.charAt(0) %>.</td>
+              <td><%= r.spot_name %></td>
+              <td><%= r.dates.join(', ') %></td>
+              <td>฿<%= r.total_price %></td>
+              <td><strong><%= r.payment_status %></strong></td>
+              <td>
+                <span class="status-text <%= r.approval_status %>"><%= r.approval_status %></span>
+              </td>
+              <td class="row-actions">
+                <button
+                  type="button"
+                  class="btn-sm btn-outline"
+                  onclick="toggleRentalDetail(<%= r.id %>, this)"
+                  aria-expanded="false"
+                >
+                  Details
+                </button>
+                <% if (r.approval_status === 'waiting') { %>
+                  <form action="/owner/markets/<%= market.id %>/rentals/<%= r.id %>/approve" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-sm btn-approve">Approve</button>
+                  </form>
+                <% } %>
+                <% if (r.approval_status !== 'denied') { %>
+                  <form action="/owner/markets/<%= market.id %>/rentals/<%= r.id %>/deny" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-sm btn-deny">Deny</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+
+            <!-- Expandable Detail Panel Directly Under Row -->
+            <tr id="detail-<%= r.id %>" class="booking-detail-row" hidden>
+              <td colspan="7">
+                <div class="detail-drawer-card">
+                  <div class="detail-info-col">
+                    <p><strong>Rental Code:</strong> <%= r.rental_code %></p>
+                    <p><strong>Tenant:</strong> <%= r.first_name %> <%= r.last_name %></p>
+                    <p><strong>Phone:</strong> <%= r.phone_number || '-' %></p>
+                    <% if (r.shop_name) { %>
+                      <p><strong>Shop Name:</strong> <%= r.shop_name %></p>
+                    <% } %>
+                    <p><strong>Spot:</strong> <%= r.spot_name %></p>
+                    <p><strong>Booked Dates:</strong> <%= r.dates.join(', ') %></p>
+                    <p><strong>Total Price:</strong> ฿<%= r.total_price %> (<%= r.payment_status %>)</p>
+                  </div>
+
+                  <div class="detail-slip-col">
+                    <span class="slip-label">Payment Slip</span>
+                    <% if (r.slip_image_url) { %>
+                      <a href="/slips/<%= r.slip_image_url %>" target="_blank" rel="noopener">
+                        <img
+                          src="/slips/<%= r.slip_image_url %>"
+                          alt="Payment slip for <%= r.rental_code %>"
+                          class="slip-thumb"
+                        />
+                      </a>
+                    <% } else { %>
+                      <div class="no-slip-box">No slip uploaded</div>
+                    <% } %>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function toggleRentalDetail(id, btn) {
+      const detailRow = document.getElementById('detail-' + id);
+      const summaryRow = document.getElementById('row-' + id);
+      if (!detailRow) return;
+
+      const isOpening = detailRow.hidden;
+
+      // Close any other open detail row
+      document.querySelectorAll('.booking-detail-row').forEach((row) => {
+        row.hidden = true;
+      });
+      document.querySelectorAll('.booking-summary-row').forEach((row) => {
+        row.classList.remove('is-expanded');
+      });
+      document.querySelectorAll('.booking-summary-row .btn-outline').forEach((b) => {
+        b.setAttribute('aria-expanded', 'false');
+        b.textContent = 'Details';
+      });
+
+      if (isOpening) {
+        detailRow.hidden = false;
+        if (summaryRow) summaryRow.classList.add('is-expanded');
+        btn.setAttribute('aria-expanded', 'true');
+        btn.textContent = 'Hide';
+      }
+    }
+  </script>
+</body>
+</html>

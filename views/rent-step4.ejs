@@ -32,15 +32,15 @@
                 <h2 class="block-title">Payment</h2>
 
                 <section class="pay-card" aria-label="Bank transfer details">
-                    <p class="pay-line">The Siam Commercial Bank</p>
-                    <p class="pay-line">Miss Catherine S.</p>
-                    <p class="pay-line">Bank number: 123-456-789</p>
+                    <p class="pay-line"><%= p.bankName %></p>
+                    <p class="pay-line"><%= p.accountName %></p>
+                    <p class="pay-line">Bank number: <%= p.accountNumber %></p>
 
-                    <img class="pay-qr" src="/images/qr_payment.svg" alt="Payment QR code" width="210" height="210" />
+                    <img class="pay-qr" src="<%= p.qrImage || '/images/qr_payment.svg' %>" alt="Payment QR code" width="210" height="210" />
 
                     <p class="pay-timer<%= isExpired ? ' is-expired' : '' %>" id="countdown" role="timer"
                        data-remaining="<%= secondsLeft %>"><%= String(Math.floor(secondsLeft / 60)).padStart(2, '0') %>:<%= String(secondsLeft % 60).padStart(2, '0') %></p>
-                </section>
+                </section>  
 
                 <p class="pay-alert" id="pay-expired" role="alert" <%= isExpired ? '' : 'hidden' %>>
                     Payment time has ended. Please start a new rental.

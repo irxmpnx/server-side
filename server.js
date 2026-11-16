@@ -8,7 +8,7 @@ const { connectDB } = require('./configs/db');
 const { attachUserToLocals } = require('./middleware/auth');
 const pageRoutes = require('./routes/pageRoutes');
 const authRoutes = require('./routes/authRoutes');
-
+const ownerRoutes = require('./routes/ownerRoutes');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -23,8 +23,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const conString =
-  process.env.DATABASE_URL ||
-  `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+process.env.DATABASE_URL ||
+`postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+
 
 app.use(
   session({
@@ -49,6 +50,7 @@ app.use(
 app.use(attachUserToLocals);
 app.use('/', pageRoutes);
 app.use('/', authRoutes);
+app.use('/owner', ownerRoutes);
 
 const PORT = process.env.PORT || 3000;
 

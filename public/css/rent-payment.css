@@ -105,22 +105,33 @@
 }
 
 /* ---------- ปุ่ม Back / Next ---------- */
-.rent-actions { gap: 1.4rem; }
+.rent-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    margin-top: 32px;
+}
 .btn-back {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 113px;
-    height: 62px;
-    padding: 0 1.5rem;
-    border: 1px solid var(--vd-ink);
+    height: 46px;
+    min-width: 120px;
+    padding: 0 24px;
+    border: 1.5px solid var(--vd-ink);
     border-radius: 6px;
     background: #fff;
     color: var(--vd-ink);
     font-family: var(--font-ui);
-    font-size: 1.4rem;
-    letter-spacing: 0.04em;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.03em;
     text-decoration: none;
+    box-sizing: border-box;
+    margin: 0;
+    cursor: pointer;
 }
 .btn-back:hover { background: #f4f4f4; }
 .btn-back:focus-visible { outline: 3px solid var(--vd-blue-dark); outline-offset: 2px; }

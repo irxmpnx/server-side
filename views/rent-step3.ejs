@@ -1,0 +1,68 @@
+<%
+  const r = locals.rent || {};
+  const formattedDates = (r.dates || []).join(', ');
+  const totalAmount = Number(r.totalPrice || 0).toLocaleString();
+%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm Details - Vendoo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/rent.css" />
+</head>
+
+<body>
+  <%- include('partials/nav') %>
+
+  <main class="rent">
+    <h1 class="rent-title">Rent a spot</h1>
+
+    <%- include('partials/rent-stepper', { current: 3 }) %>
+
+    <form action="/rent/step3" method="POST" class="rent-form rent-step3-form">
+      <div class="confirm-section">
+        <h2 class="section-bar-title">Confirm details</h2>
+
+        <div class="confirm-card">
+          <div class="confirm-row">
+            <span class="confirm-label">Market</span>
+            <strong class="confirm-value"><%= r.marketName || '-' %></strong>
+          </div>
+
+          <div class="confirm-row">
+            <span class="confirm-label">Shop name</span>
+            <strong class="confirm-value"><%= r.shopName || '-' %></strong>
+          </div>
+
+          <div class="confirm-row">
+            <span class="confirm-label">Date</span>
+            <strong class="confirm-value"><%= formattedDates || '-' %></strong>
+          </div>
+
+          <div class="confirm-row">
+            <span class="confirm-label">Spot</span>
+            <strong class="confirm-value"><%= r.spotName || '-' %> (<%= r.spotSize || '-' %>m)</strong>
+          </div>
+
+          <div class="confirm-row">
+            <span class="confirm-label">Price</span>
+            <strong class="confirm-value"><%= totalAmount %> baht</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="rent-actions">
+        <a href="/rent/step2" class="btn-back">Back</a>
+        <button type="submit" class="btn-next btn-confirm-rental">Confirm Rental</button>
+      </div>
+    </form>
+  </main>
+</body>
+
+</html>
