@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Markets - Vendoo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="owner-container">
+    <div class="page-header-row">
+      <h1 class="owner-page-title">My Markets</h1>
+      <a href="/owner/markets/new/step-1" class="btn-yellow">Add A market</a>
+    </div>
+
+    <% if (markets.length === 0) { %>
+      <div class="empty-card">
+        <p>You haven't published any markets yet.</p>
+        <a href="/owner/markets/new/step-1" class="btn-yellow" style="margin-top:16px;">+ Create your first market</a>
+      </div>
+    <% } %>
+
+    <div class="market-list">
+      <% markets.forEach(market => { %>
+        <div class="market-card">
+          <img src="<%= market.cover_image_url || '/images/default-market.jpg' %>" alt="<%= market.name %>" class="market-thumb" />
+
+          <div class="market-card-info">
+            <h2 class="market-card-title"><%= market.location %> - <%= market.name %></h2>
+            <p class="market-card-meta">
+              Operating day:
+              <%= market.operating_days.map(d => dayNames[d.day_of_week]).join(', ') || 'Not set' %>
+            </p>
+            <p class="market-card-meta">
+              Time:
+              <%= market.operating_days[0] ? `${market.operating_days[0].open_time} - ${market.operating_days[0].close_time}` : '-' %>
+            </p>
+          </div>
+
+          <div class="market-card-actions">
+            <a href="/owner/markets/<%= market.id %>/dashboard" class="btn-outline">Dashboard</a>
+            <a href="/owner/markets/<%= market.id %>/dashboard" class="btn-outline">View details</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+</body>
+</html>

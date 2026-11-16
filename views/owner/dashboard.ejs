@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= market.name %> Dashboard - Vendoo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="owner-container">
+    <div class="dash-top-row">
+      <div>
+        <div class="dash-title-group">
+          <h1 class="owner-page-title"><%= market.name %></h1>
+          <span class="badge-open <%= market.is_open ? 'open' : 'closed' %>">
+            <%= market.is_open ? 'Open' : 'Closed' %>
+          </span>
+        </div>
+        <p class="dash-subtitle"><%= market.genre %> - <%= market.location %></p>
+      </div>
+
+      <div class="dash-top-actions">
+        <a href="/owner/markets" class="btn-outline">&lt; All markets</a>
+        <a href="/owner/markets/new/step-1" class="btn-outline">Edit details</a>
+      </div>
+    </div>
+
+    <!-- Date Filter -->
+    <form method="GET" action="/owner/markets/<%= market.id %>/dashboard" class="date-filter-form">
+      <label class="date-box">
+        <span>Date:</span>
+        <input type="date" name="date" value="<%= filterDate %>" onchange="this.form.submit()" />
+      </label>
+    </form>
+
+    <!-- 4 KPI Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Rental spot</span>
+        <strong class="stat-value"><%= stats.totalSpots %></strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Available</span>
+        <strong class="stat-value"><%= stats.available %></strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Rented</span>
+        <strong class="stat-value"><%= stats.rented %></strong>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Total rent</span>
+        <strong class="stat-value">฿<%= stats.totalRent %></strong>
+      </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="table-wrapper">
+      <table class="bookings-table">
+        <thead>
+          <tr>
+            <th>Tenant</th>
+            <th>Spot</th>
+            <th>Date</th>
+            <th>Price</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (rentals.length === 0) { %>
+            <tr>
+              <td colspan="7" style="text-align:center; padding: 28px; color:#888;">No bookings found.</td>
+            </tr>
+          <% } %>
+
+          <% rentals.forEach(r => { %>
+            <tr>
+              <td><%= r.first_name %> <%= r.last_name.charAt(0) %>.</td>
+              <td><%= r.spot_name %></td>
+              <td><%= r.dates.join(', ') %></td>
+              <td>฿<%= r.total_price %></td>
+              <td><strong><%= r.payment_status %></strong></td>
+              <td>
+                <span class="status-text <%= r.approval_status %>"><%= r.approval_status %></span>
+              </td>
+              <td class="row-actions">
+                <button type="button" class="btn-sm btn-outline" onclick="alert('Tenant: <%= r.first_name %> <%= r.last_name %>\nTel: <%= r.phone_number %>\nCode: <%= r.rental_code %>')">
+                  Details
+                </button>
+                <% if (r.approval_status === 'waiting') { %>
+                  <form action="/owner/markets/<%= market.id %>/rentals/<%= r.id %>/approve" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-sm btn-approve">Approve</button>
+                  </form>
+                <% } %>
+                <% if (r.approval_status !== 'denied') { %>
+                  <form action="/owner/markets/<%= market.id %>/rentals/<%= r.id %>/deny" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-sm btn-deny">Deny</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

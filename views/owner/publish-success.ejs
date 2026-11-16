@@ -1,0 +1,26 @@
+<!-- views/owner/publish-success.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Published - Vendoo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Josefin+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/owner.css" />
+</head>
+<body>
+  <%- include('../partials/nav') %>
+
+  <main class="success-container">
+    <div class="check-circle">&#10003;</div>
+    <h1 class="wizard-title" style="margin-bottom:14px;">Published market is successful</h1>
+    <p class="success-sub">Market is published. You can view market details at "My Markets"</p>
+
+    <div class="success-actions">
+      <a href="/owner/markets/<%= marketId %>/dashboard" class="btn-yellow">Go to dashboard</a>
+      <a href="/owner/markets" class="btn-outline">Edit details</a>
+    </div>
+  </main>
+</body>
+</html>
