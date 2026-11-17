@@ -107,7 +107,10 @@
           </span>
       </button>
       <% } else if (!currentUser) { %>
-        <a href="/signin" class="btn-insight-outline"><span class="heart-icon">♡</span> Add to favorite</a>
+        <a href="/signin" class="btn-insight-outline">
+          <img src="/images/heart_outline.svg" class="favorite-heart" alt="Favorite" />
+          <span class="favorite-button-label">Add to favorite</span>
+        </a>
       <% } %>
       <% if (!currentUser || currentUser.role !== 'owner_market') { %>
         <a href="/rent/step1?marketId=<%= market.id %>" class="btn-insight-yellow">Rent a spot</a>

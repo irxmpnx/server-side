@@ -31,7 +31,7 @@ router.post('/myFavorite/:marketId', requireAuth, requireRole('tenant'), favorit
 router.delete('/myFavorite/:marketId', requireAuth, requireRole('tenant'), favoriteController.removeFavorite);
 
 // Tenant Market Browse & Details
-router.get('/markets', requireAuth, marketController.getMarkets);
+router.get('/markets', marketController.getMarkets);
 router.get('/markets/:id', pageController.getMarketDetail);
 
 // Tenant Rental Steps 1 - 4
