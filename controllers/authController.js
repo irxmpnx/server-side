@@ -1,7 +1,37 @@
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModel');
 
+const { validatePassword } = require('../utils/passwordRules');
 const SALT_ROUNDS = 12;
+
+// Simple brute-force guard for the reset form: 5 failed tries per IP + username every 15 minutes
+const RESET_MAX_ATTEMPTS = 5;
+const RESET_LOCK_MS = 15 * 60 * 1000;
+const resetAttempts = new Map();
+
+function resetKey(req, username) {
+  return `${req.ip}|${String(username || '').toLowerCase()}`;
+}
+
+function isResetLocked(key) {
+  const entry = resetAttempts.get(key);
+  if (!entry) return false;
+  if (Date.now() > entry.until) {
+    resetAttempts.delete(key);
+    return false;
+  }
+  return entry.count >= RESET_MAX_ATTEMPTS;
+}
+
+function recordResetFailure(key) {
+  const entry = resetAttempts.get(key);
+  const now = Date.now();
+  if (!entry || now > entry.until) {
+    resetAttempts.set(key, { count: 1, until: now + RESET_LOCK_MS });
+  } else {
+    entry.count += 1;
+  }
+}
 
 exports.getSignUp = (req, res) => {
   if (req.session.user) return res.redirect('/markets');
@@ -30,8 +60,9 @@ exports.postSignUp = async (req, res) => {
     if (!/^\d{10}$/.test(phone_number)) {
       return res.render('signup', { error: 'Phone number must be exactly 10 digits.', formData });
     }
-    if (password.length < 6) {
-      return res.render('signup', { error: 'Password must be at least 6 characters long.', formData });
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return res.render('signup', { error: passwordError, formData });
     }
     if (password !== confirm_password) {
       return res.render('signup', { error: 'Passwords do not match.', formData });
@@ -75,7 +106,64 @@ exports.postSignUp = async (req, res) => {
 
 exports.getSignIn = (req, res) => {
   if (req.session.user) return res.redirect('/markets');
-  res.render('signin', { error: null });
+  const success = req.query.reset === 'success'
+    ? 'Your password has been reset. Please sign in with your new password.'
+    : null;
+  res.render('signin', { error: null, success });
+};
+
+// ---------- Forgot password ----------
+exports.getForgotPassword = (req, res) => {
+  if (req.session.user) return res.redirect('/markets');
+  res.render('forgot-password', { error: null, formData: {} });
+};
+
+exports.postForgotPassword = async (req, res) => {
+  const { username, phone_number, password, confirm_password } = req.body;
+  const formData = { username, phone_number };
+
+  try {
+    if (!username || !phone_number || !password || !confirm_password) {
+      return res.render('forgot-password', { error: 'Please fill in all fields.', formData });
+    }
+    if (!/^\d{10}$/.test(phone_number.trim())) {
+      return res.render('forgot-password', { error: 'Phone number must be exactly 10 digits.', formData });
+    }
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return res.render('forgot-password', { error: passwordError, formData });
+    }
+    if (password !== confirm_password) {
+      return res.render('forgot-password', { error: 'Passwords do not match.', formData });
+    }
+
+    const key = resetKey(req, username.trim());
+    if (isResetLocked(key)) {
+      return res.render('forgot-password', {
+        error: 'Too many attempts. Please try again in 15 minutes.',
+        formData,
+      });
+    }
+
+    const user = await UserModel.findByUsernameAndPhone(username.trim(), phone_number.trim());
+    if (!user) {
+      recordResetFailure(key);
+      // Same message whether the username or the phone number is wrong
+      return res.render('forgot-password', {
+        error: 'Username and phone number do not match our records.',
+        formData,
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    await UserModel.updatePassword(user.id, passwordHash);
+    resetAttempts.delete(key);
+
+    res.redirect('/signin?reset=success');
+  } catch (err) {
+    console.error('ForgotPassword error:', err);
+    res.render('forgot-password', { error: 'Unable to reset your password right now. Please try again.', formData });
+  }
 };
 
 exports.postSignIn = async (req, res) => {

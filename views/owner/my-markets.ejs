@@ -31,7 +31,7 @@
           <img src="<%= noCover ? '/images/no_Image.svg' : market.cover_image_url %>" alt="<%= market.name %>" class="market-thumb<%= noCover ? ' is-placeholder' : '' %>" />
 
           <div class="market-card-info">
-            <h2 class="market-card-title"><%= market.location %> - <%= market.name %></h2>
+            <h2 class="market-card-title"><%= market.name %></h2>
             <p class="market-card-meta">
               Operating day:
               <%= market.operating_days.map(d => dayNames[d.day_of_week]).join(', ') || 'Not set' %>

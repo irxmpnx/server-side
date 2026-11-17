@@ -38,7 +38,7 @@
 
         <% areaList.forEach(function (area) { %>
         <section class="area">
-            <h2 class="area-title"><%= area.name %></h2>
+            <% if (area.name) { %><h2 class="area-title"><%= area.name %></h2><% } %>
             <ul class="market-grid">
                 <% area.markets.forEach(function (m) { %>
                 <li class="market-card" data-tags="<%= (m.tags || []).join(' ') %>" data-name="<%= m.name %>">

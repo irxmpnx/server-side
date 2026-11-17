@@ -1,5 +1,3 @@
-CREATE DATABASE market_db;
-
 -- 1. USERS
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
@@ -22,8 +20,8 @@ CREATE TABLE IF NOT EXISTS markets (
   location TEXT NOT NULL,
   phone_number VARCHAR(20) NOT NULL,
   description TEXT,
-  cover_image_url TEXT DEFAULT '/images/default-market.jpg',
-  image_urls TEXT[] DEFAULT ARRAY['/images/default-market.jpg'],
+  cover_image_url TEXT DEFAULT '/images/no_Image.svg',
+  image_urls TEXT[] DEFAULT ARRAY['/images/no_Image.svg'],
   main_image_index INTEGER DEFAULT 0,
   area_width NUMERIC(8, 2) DEFAULT 200,
   area_length NUMERIC(8, 2) DEFAULT 100,

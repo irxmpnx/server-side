@@ -11,7 +11,7 @@ exports.getMarkets = async (req, res) => {
     const totalPages = Math.max(1, Math.ceil(totalMarkets / limit));
 
     const query = `
-      SELECT m.id, m.name, m.genre, m.location, m.cover_image_url, m.image_urls,
+      SELECT m.id, m.name, m.genre, m.location, m.cover_image_url, m.image_urls, m.is_open,
         COALESCE(
           ARRAY_AGG(d.day_of_week ORDER BY d.day_of_week) FILTER (WHERE d.day_of_week IS NOT NULL),
           '{}'
@@ -27,28 +27,26 @@ exports.getMarkets = async (req, res) => {
 
     const todayDow = new Date().getDay(); // 0=Sun ... 6=Sat
 
-    // Group markets by location (area) for home.ejs
-    const areaMap = new Map();
-    for (const m of rows) {
+    // One flat list of markets (the market name is shown under each image)
+    const markets = rows.map((m) => {
+      // A market the owner has closed is not "open" for any filter (it only shows under All)
       const tags = [];
-      if (m.days.includes(todayDow)) tags.push('today');
-      if (m.days.length === 7) tags.push('daily');
-      if (m.days.includes(0) || m.days.includes(6)) tags.push('weekend');
-
-      const areaName = m.location || 'Featured Markets';
-      if (!areaMap.has(areaName)) {
-        areaMap.set(areaName, { name: areaName, markets: [] });
+      if (m.is_open !== false) {
+        if (m.days.includes(todayDow)) tags.push('today');
+        if (m.days.length === 7) tags.push('daily');
+        if (m.days.includes(0) || m.days.includes(6)) tags.push('weekend');
       }
-      areaMap.get(areaName).markets.push({
+
+      return {
         id: m.id,
         name: m.name,
         image: (m.image_urls && m.image_urls[0]) || m.cover_image_url || '/images/no_Image.svg',
         tags,
-      });
-    }
+      };
+    });
 
     res.render('home', {
-      areas: Array.from(areaMap.values()),
+      areas: [{ name: null, markets }],
       page,
       totalPages,
     });
