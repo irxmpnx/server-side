@@ -20,7 +20,7 @@
     <% if (message) { %>
       <% if (message === 'cancelled') { %><p class="rental-notice success">Rental cancelled successfully.</p><% } %>
       <% if (message === 'checked-in') { %><p class="rental-notice success">Check-in completed.</p><% } %>
-      <% if (message === 'not-cancellable' || message === 'cannot-check-in') { %><p class="rental-notice">This action is not available for this rental.</p><% } %>
+      <% if (message === 'not-cancellable' || message === 'cannot-check-in' || message === 'not-payable') { %><p class="rental-notice">This action is not available for this rental.</p><% } %>
       <% if (message === 'error') { %><p class="rental-notice">Something went wrong. Please try again.</p><% } %>
     <% } %>
 
@@ -88,9 +88,15 @@
                 </form>
                 <a href="/myRental/<%= rental.id %>/pay" class="btn-pay-now">Pay</a>
               <% } else if (rental.payment_status === 'paid' && !rental.checked_in_at) { %>
-                <form action="/myRental/<%= rental.id %>/check-in" method="POST" onsubmit="return confirm('Confirm check-in?')">
-                  <button class="btn-pay" type="submit">Check in</button>
-                </form>
+                <% if (rental.approval_status === 'approved') { %>
+                  <form action="/myRental/<%= rental.id %>/check-in" method="POST" onsubmit="return confirm('Confirm check-in?')">
+                    <button class="btn-pay" type="submit">Check in</button>
+                  </form>
+                <% } else if (rental.approval_status === 'denied') { %>
+                  <span class="approval-note denied">Denied</span>
+                <% } else { %>
+                  <span class="approval-note">Waiting</span>
+                <% } %>
               <% } else if (rental.payment_status === 'cancelled') { %>
                 <div class="cancel-date"><span class="detail-label">Cancel date:</span><span class="detail-value"><%= rental.cancelled_at ? new Date(rental.cancelled_at).toLocaleDateString('en-GB') : '-' %></span></div>
               <% } %>

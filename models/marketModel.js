@@ -30,7 +30,7 @@ const MarketModel = {
       const images =
         Array.isArray(details.image_urls) && details.image_urls.length > 0
           ? details.image_urls
-          : ['/images/m1.png'];
+          : ['/images/no_Image.svg'];
 
       const marketRes = await client.query(
         `INSERT INTO markets (
@@ -137,7 +137,7 @@ const MarketModel = {
     const images =
       Array.isArray(details.image_urls) && details.image_urls.length > 0
         ? details.image_urls
-        : ['/images/m1.png'];
+        : ['/images/no_Image.svg'];
 
     await client.query('BEGIN');
     try {

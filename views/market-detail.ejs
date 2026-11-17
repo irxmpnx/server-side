@@ -84,7 +84,11 @@
 
     <!-- Bottom Action Buttons -->
     <div class="insight-actions">
-      <a href="/markets" class="btn-insight-outline">Back to home</a>
+      <% if (currentUser && currentUser.role === 'owner_market') { %>
+        <a href="/owner/markets" class="btn-insight-outline">Back to my markets</a>
+      <% } else { %>
+        <a href="/markets" class="btn-insight-outline">Back to home</a>
+      <% } %>
       <% if (currentUser && currentUser.role === 'tenant') { %>
         <button type="button"
           class="btn-insight-outline <%= isFavorite ? 'is-favorited' : '' %>"

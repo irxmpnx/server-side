@@ -22,6 +22,8 @@
         input.disabled = true;
         attachLabel.classList.add('is-disabled');
         nextBtn.disabled = true;
+        // Tell the server so the unpaid rental is cancelled immediately
+        try { fetch('/rent/step4/expire', { method: 'POST', credentials: 'same-origin' }); } catch (e) {}
     }
 
     function tick() {

@@ -14,7 +14,7 @@ exports.getMyMarkets = async (req, res) => {
 
 exports.startNewMarket = (req, res) => {
   req.session.marketDraft = {
-    editMarketId: null,
+    editingMarketId: null,
     details: {},
     operatingDays: [],
     area: { width: 200, length: 100 },
@@ -70,7 +70,7 @@ exports.getPublishStep1 = (req, res) => {
   }
 
   const draft = req.session.marketDraft?.details || {};
-  res.render('owner/publish-step1', { draft });
+  res.render('owner/publish-step1', { draft, isEditing: !!req.session.marketDraft?.editingMarketId });
 };
 
 exports.postPublishStep1 = (req, res) => {
@@ -130,6 +130,7 @@ exports.getPublishStep2 = (req, res) => {
     return res.redirect('/owner/markets/new/step-1');
   }
   res.render('owner/publish-step2', {
+    isEditing: !!req.session.marketDraft.editingMarketId,
     operatingDays: req.session.marketDraft.operatingDays || [],
   });
 };
@@ -157,7 +158,7 @@ exports.getPublishStep3 = (req, res) => {
   if (!req.session.marketDraft?.details?.name) {
     return res.redirect('/owner/markets/new/step-1');
   }
-  res.render('owner/publish-step3', { draft: req.session.marketDraft });
+  res.render('owner/publish-step3', { draft: req.session.marketDraft, isEditing: !!req.session.marketDraft.editingMarketId });
 };
 
 exports.postPublishStep3 = (req, res) => {
@@ -184,7 +185,7 @@ exports.getPublishStep4 = (req, res) => {
   if (!req.session.marketDraft?.details?.name) {
     return res.redirect('/owner/markets/new/step-1');
   }
-  res.render('owner/publish-step4', { draft: req.session.marketDraft });
+  res.render('owner/publish-step4', { draft: req.session.marketDraft, isEditing: !!req.session.marketDraft.editingMarketId });
 };
 
 exports.postPublishStep4 = async (req, res) => {
@@ -201,8 +202,8 @@ exports.postPublishStep4 = async (req, res) => {
 
     const ownerId = req.session.user.id;
 
-    if (draft.editMarketId) {
-      const updatedId = await MarketModel.updateFullMarket(draft.editMarketId, ownerId, draft);
+    if (draft.editingMarketId) {
+      const updatedId = await MarketModel.updateFullMarket(draft.editingMarketId, ownerId, draft);
       delete req.session.marketDraft;
       return req.session.save(() => res.redirect(`/owner/markets/${updatedId}/dashboard`));
     }

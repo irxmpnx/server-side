@@ -12,7 +12,7 @@
   <%- include('../partials/nav') %>
 
   <main class="wizard-container">
-    <h1 class="wizard-title"><%= draft.name ? 'Edit market' : 'Add a market' %></h1>
+    <h1 class="wizard-title"><%= locals.isEditing ? 'Edit market' : 'Add a market' %></h1>
 
     <!-- Single Continuous Line Behind Stepper Circles -->
     <div class="stepper" style="--progress: 0%;">

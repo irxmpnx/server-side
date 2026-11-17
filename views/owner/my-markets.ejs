@@ -27,7 +27,8 @@
     <div class="market-list">
       <% markets.forEach(market => { %>
         <div class="market-card">
-          <img src="<%= market.cover_image_url || '/images/default-market.jpg' %>" alt="<%= market.name %>" class="market-thumb" />
+          <% const noCover = !market.cover_image_url || market.cover_image_url === '/images/no_Image.svg'; %>
+          <img src="<%= noCover ? '/images/no_Image.svg' : market.cover_image_url %>" alt="<%= market.name %>" class="market-thumb<%= noCover ? ' is-placeholder' : '' %>" />
 
           <div class="market-card-info">
             <h2 class="market-card-title"><%= market.location %> - <%= market.name %></h2>

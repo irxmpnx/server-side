@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { client } = require('../configs/db');
+const { expireUnpaidRentals } = require('../utils/rentalExpiry');
 
 const PAYMENT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
@@ -28,10 +29,14 @@ async function persistRental(req, rent, paymentStatus, slipFilename = null) {
   if (rent.rentalId) {
     // Update existing unpaid rental if tenant attaches slip later
     if (paymentStatus === 'paid' && slipFilename) {
-      await client.query(
-        `UPDATE rentals SET payment_status = 'paid', slip_image_url = $1, paid_at = NOW() WHERE id = $2;`,
+      const upd = await client.query(
+        `UPDATE rentals SET payment_status = 'paid', slip_image_url = $1, paid_at = NOW()
+         WHERE id = $2 AND payment_status = 'unpaid';`,
         [slipFilename, rent.rentalId]
       );
+      if (upd.rowCount === 0) {
+        throw new Error('This rental has expired or was cancelled.');
+      }
     }
     return rent.rentalId;
   }
@@ -106,6 +111,9 @@ exports.getStep4 = async (req, res) => {
       Math.floor((rent.paymentDueAt - Date.now()) / 1000)
     );
 
+    // Deadline passed: cancel the unpaid rental right away
+    if (remainingSeconds === 0) await expireUnpaidRentals();
+
     const error = req.session.rentError || '';
     delete req.session.rentError;
 
@@ -122,6 +130,16 @@ exports.getStep4 = async (req, res) => {
     console.error('getStep4 error:', err);
     res.status(500).send('Error loading payment page.');
   }
+};
+
+// Called by the countdown when it reaches 00:00 so the rental is cancelled immediately.
+exports.expireStep4 = async (req, res) => {
+  const rent = req.session.rent;
+  if (rent && rent.paymentDueAt && Date.now() >= rent.paymentDueAt - 1000) {
+    await expireUnpaidRentals();
+    return res.json({ expired: true });
+  }
+  res.json({ expired: false });
 };
 
 exports.postStep4 = async (req, res) => {

@@ -287,6 +287,12 @@
   background: #EEEEEE;
 }
 
+/* Placeholder is shown whole (not cropped) so its frame keeps all four edges */
+.market-thumb.is-placeholder {
+  object-fit: contain;
+  background: #FFFFFF;
+}
+
 .market-card-info {
   flex: 1;
 }

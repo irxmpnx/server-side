@@ -1,8 +1,10 @@
 const { client } = require('../configs/db');
+const { expireUnpaidRentals } = require('../utils/rentalExpiry');
 
 // Show only the logged-in tenant's rentals.
 exports.getMyRental = async (req, res) => {
   try {
+    await expireUnpaidRentals();
     const { rows: rentals } = await client.query(
       `SELECT
          r.id,
@@ -46,6 +48,7 @@ exports.getMyRental = async (req, res) => {
 // send the tenant to Step 4 (payment page).
 exports.payRental = async (req, res) => {
   try {
+    await expireUnpaidRentals();
     const { rows } = await client.query(
       `SELECT r.id, r.market_id, r.spot_id, r.shop_name, r.total_price,
               EXTRACT(EPOCH FROM (r.payment_deadline AT TIME ZONE current_setting('TimeZone'))) * 1000 AS payment_due_ms,
@@ -122,7 +125,7 @@ exports.cancelRental = async (req, res) => {
   }
 };
 
-// Check-in is available for a paid rental that has not been checked in yet.
+// Check-in is available for a paid rental that the market owner approved and that has not been checked in yet.
 exports.checkInRental = async (req, res) => {
   try {
     const result = await client.query(
@@ -131,6 +134,7 @@ exports.checkInRental = async (req, res) => {
        WHERE id = $1
          AND tenant_id = $2
          AND payment_status = 'paid'
+         AND approval_status = 'approved'
          AND checked_in_at IS NULL
        RETURNING id;`,
       [req.params.id, req.session.user.id]

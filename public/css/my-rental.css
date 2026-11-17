@@ -117,6 +117,8 @@
   background: #fff04d;
 }
 .cancel-date { display: flex; flex-direction: column; gap: 5px; }
+.approval-note { color: #888; font-size: 1.05rem; }
+.approval-note.denied { color: #c62828; }
 .checked-in-label { color: #4f9d28; font-size: .9rem; }
 .empty-rentals { text-align: center; padding: 48px 16px; color: #888; border: 1px solid #ddd; border-radius: 6px; }
 .rental-notice { max-width: 860px; margin: -1.5rem auto 1.5rem; color: #9b3d32; }

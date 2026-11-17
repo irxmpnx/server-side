@@ -9,6 +9,7 @@ const { attachUserToLocals } = require('./middleware/auth');
 const pageRoutes = require('./routes/pageRoutes');
 const authRoutes = require('./routes/authRoutes');
 const ownerRoutes = require('./routes/ownerRoutes');
+const { startRentalExpirySweeper } = require('./utils/rentalExpiry');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -55,6 +56,7 @@ app.use('/owner', ownerRoutes);
 const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {
+  startRentalExpirySweeper();
   app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
   });

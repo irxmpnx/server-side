@@ -22,7 +22,7 @@ exports.getMyFavorite = async (req, res) => {
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const favorites = rows.map((market) => ({
       ...market,
-      image: (market.image_urls && market.image_urls[0]) || market.cover_image_url || '/images/m1.png',
+      image: (market.image_urls && market.image_urls[0]) || market.cover_image_url || '/images/no_Image.svg',
       daysLabel: market.operating_days.length
         ? market.operating_days.map((day) => dayNames[day]).join(', ')
         : '-',

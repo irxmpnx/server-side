@@ -42,7 +42,7 @@ exports.getMarkets = async (req, res) => {
       areaMap.get(areaName).markets.push({
         id: m.id,
         name: m.name,
-        image: (m.image_urls && m.image_urls[0]) || m.cover_image_url || '/images/m1.png',
+        image: (m.image_urls && m.image_urls[0]) || m.cover_image_url || '/images/no_Image.svg',
         tags,
       });
     }

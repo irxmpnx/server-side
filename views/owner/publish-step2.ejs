@@ -12,7 +12,7 @@
   <%- include('../partials/nav') %>
 
   <main class="wizard-container">
-    <h1 class="wizard-title">Add a market</h1>
+    <h1 class="wizard-title"><%= locals.isEditing ? 'Edit market' : 'Add a market' %></h1>
 
 <div class="stepper" style="--progress: 33.3%;">
   <div class="step done"><span class="dot"></span><small>Market details</small></div>

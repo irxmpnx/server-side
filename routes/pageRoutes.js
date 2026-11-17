@@ -18,9 +18,10 @@ router.get('/welcome', requireAuth, (req, res) => {
 });
 
 // Tenant's rental history
+router.get('/slips/:filename', requireAuth, pageController.getSlip);
 router.get('/myRental', requireAuth, requireRole('tenant'), myRentalController.getMyRental);
-router.post('/myRental/:id/cancel', requireAuth, requireRole('tenant'), myRentalController.cancelRental);
 router.get('/myRental/:id/pay', requireAuth, requireRole('tenant'), myRentalController.payRental);
+router.post('/myRental/:id/cancel', requireAuth, requireRole('tenant'), myRentalController.cancelRental);
 router.post('/myRental/:id/check-in', requireAuth, requireRole('tenant'), myRentalController.checkInRental);
 
 // Tenant favorites
@@ -44,6 +45,7 @@ router.get('/rent/step3', requireAuth, requireRole('tenant'), rentController.get
 router.post('/rent/step3', requireAuth, requireRole('tenant'), rentController.postStep3);
 
 router.get('/rent/step4', requireAuth, requireRole('tenant'), paymentController.getStep4);
+router.post('/rent/step4/expire', requireAuth, requireRole('tenant'), paymentController.expireStep4);
 router.post('/rent/step4', requireAuth, requireRole('tenant'), uploadSlip, paymentController.postStep4);
 router.get('/rent/success', requireAuth, requireRole('tenant'), paymentController.getSuccess);
 router.get('/rent/payment-required', requireAuth, requireRole('tenant'), paymentController.getPaymentRequired);
